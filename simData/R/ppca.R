@@ -58,13 +58,13 @@ ppca_shared <- function(opts = list()) {
   # data unique to each table
   params$U <- matnorm(opts$n, opts$k_shared, opts$sigma0)
   params$V <- matnorm(opts$p, opts$k_shared, opts$sigma0)
-  for(l in seq_along(opts$p)) {
+  for(l in seq_along(opts$k_unique)) {
     params$W[[l]] <- matnorm(opts$n, opts$k_unique[l], opts$sigma0)
     params$S[[l]] <- matnorm(opts$p, opts$k_unique[l], opts$sigma0)
     X[[l]] <- params$W[[l]] %*% t(params$S[[l]]) +
+      params$U %*% t(params$V) +
       matnorm(opts$n, opts$p, opts$sigma)
   }
 
   list(X = X, params = params)
 }
-
