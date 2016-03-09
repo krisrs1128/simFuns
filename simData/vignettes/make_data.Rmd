@@ -1,0 +1,19 @@
+---
+title: "Make Simulation Data"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This document simulates data that can be used to compare multitable
+methods. The results are stored in the `simData/data/` directory, and
+can be accessed by calling `data()`.
+
+```{r}
+library("knitr")
+opts_chunk$set(fig.width = 8, fig.height = 5, warning = FALSE)
+read_chunk("make_data.R")
+```
