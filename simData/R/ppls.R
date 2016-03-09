@@ -1,11 +1,11 @@
 
 ################################################################################
-# Generate data according to probabilistic PCA model
+# Generate data according to probabilistic PLS model
 ################################################################################
 
-#' @title Default options for PPCA simulation
+#' @title Default options for PPLS simulation
 #' @param opts  A (potentially partially specified) list of options to use when
-#' simulating from the probabilistic PCA model. The potential arguments are \cr
+#' simulating from the probabilistic PLS model. The potential arguments are \cr
 #'    $k_shared The latent dimension for the shared sources. \cr
 #'    $k_unique The latent dimensions for the table-unique sources.
 #'    $n The total number of samples, for each table.
@@ -14,7 +14,7 @@
 #'    $sigma0 The variance when generating scores / factors.
 #' @return opts The original opts with defaults filled in.
 #' @export
-merge_ppca_opts <- function(opts) {
+merge_ppls_opts <- function(opts) {
   default_opts <- list()
   default_opts$k_shared <- 2
   default_opts$k_unique <- c(2, 2)
@@ -31,7 +31,7 @@ matnorm <- function(n, p, sigma) {
   matrix(rnorm(n * p, 0, sd = sigma), n, p)
 }
 
-#' @title Probabilistic PCA simulation
+#' @title Probabilistic PLS simulation
 #' @description Generate L tables X[[l]], so that
 #'      X[[l]] = W[[l]] S[[l]]' + U * V' + E[[l]]
 #' where the W's and S's are k[[l]]-dimensional latent scores / factors,
@@ -39,19 +39,19 @@ matnorm <- function(n, p, sigma) {
 #' spherical normals with variance opts$sigma times the identity, and E is
 #' spherical normal with variance opts$sigma times the identity.
 #'
-#' Note this is not the "true" ppca model -- there the prior is only on the
+#' Note this is not the "true" ppls model -- there the prior is only on the
 #' latent factors / sources, not scores / coordinates. Here we just need a way
 #' to generate those coordinates, so we use a normal.
 #'
-#' @param opts Options for the PPCA simulation. See merge_ppca_opts().
+#' @param opts Options for the PPLS simulation. See merge_ppls_opts().
 #' @examples
-#' ppca_res <- ppca_shared()
-#' X <- do.call(cbind, ppca_res$X)
+#' ppls_res <- ppls_shared()
+#' X <- do.call(cbind, ppls_res$X)
 #' res <- princomp(X)
-#' plot(res$scores[, 1], ppca_res$params$U[, 1])
+#' plot(res$scores[, 1], ppls_res$params$U[, 1])
 #' @export
-ppca_shared <- function(opts = list()) {
-  opts <- merge_ppca_opts(opts)
+ppls_shared <- function(opts = list()) {
+  opts <- merge_ppls_opts(opts)
   params <- list(W = list(), S = list(), U = NULL, V = NULL)
   X <- list()
 
