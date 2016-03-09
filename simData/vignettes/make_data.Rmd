@@ -18,5 +18,8 @@ opts_chunk$set(fig.width = 8, fig.height = 5, warning = FALSE)
 read_chunk("make_data.R")
 ```
 
+```{r, setup}
+```
+
 ```{r, pls-data}
 ```
