@@ -33,7 +33,7 @@ true_scores_2 <- melt(pls_two_table$params$W, varnames = c("index", "dimension")
 colnames(true_scores_2) <- c("index", "table", "dim1", "dim2")
 
 ggplot(true_scores_2) +
-  geom_point(aes_string(x = "dim1", y = "dim2")) +
+  geom_text(aes_string(x = "dim1", y = "dim2", label = "index")) +
   facet_wrap(~table) +
   ggtitle("True PLS scores")
 
@@ -42,9 +42,17 @@ true_scores_4 <- melt(pls_four_table$params$W, varnames = c("index", "dimension"
 colnames(true_scores_4) <- c("index", "table", "dim1", "dim2")
 
 ggplot(true_scores_4) +
-  geom_point(aes_string(x = "dim1", y = "dim2")) +
+  geom_text(aes_string(x = "dim1", y = "dim2", label = "index")) +
   facet_wrap(~table) +
   ggtitle("True PLS scores")
+
+## ---- plot-pca-scores ----
+head(UD_pls_2)
+pca_scores_2 <- melt(UD_pls_2, varnames = c("index", "dimension")) %>%
+  dcast(index ~ dimension)
+colnames(pca_scores_2) <- c("index", paste0("dim", 1:(ncol(pca_scores_2) - 1)))
+ggplot(pca_scores_2) +
+  geom_text(aes_string(x = "dim1", y = "dim2", label = "index"))
 
 ## ---- compare-scores ----
 dim(UD_pls_2)
