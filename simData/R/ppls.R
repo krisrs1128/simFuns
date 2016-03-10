@@ -33,7 +33,7 @@ matnorm <- function(n, p, sigma) {
 
 #' @title Probabilistic PLS simulation
 #' @description Generate L tables X[[l]], so that
-#'      X[[l]] = W[[l]] S[[l]]' + U * V' + E[[l]]
+#'      X[[l]] = W[[l]] S[[l]]' + U[[l]] * V' + E[[l]]
 #' where the W's and S's are k[[l]]-dimensional latent scores / factors,
 #' U and V are shared k_shared-dimensional scores / factors, generated from
 #' spherical normals with variance opts$sigma times the identity, and E is
@@ -56,13 +56,13 @@ ppls_shared <- function(opts = list()) {
   X <- list()
 
   # data unique to each table
-  params$U <- matnorm(opts$n, opts$k_shared, opts$sigma0)
   params$V <- qr.Q(qr(matnorm(opts$p, opts$k_shared, opts$sigma0)))
   for(l in seq_along(opts$k_unique)) {
+    params$U[[l]] <- matnorm(opts$n, opts$k_shared, opts$sigma0)
     params$W[[l]] <- matnorm(opts$n, opts$k_unique[l], opts$sigma0)
     params$S[[l]] <- qr.Q(qr(matnorm(opts$p, opts$k_unique[l], opts$sigma0)))
     X[[l]] <- params$W[[l]] %*% t(params$S[[l]]) +
-      params$U %*% t(params$V) +
+      params$U[[l]] %*% t(params$V) +
       matnorm(opts$n, opts$p, opts$sigma)
   }
 
