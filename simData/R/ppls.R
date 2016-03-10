@@ -16,6 +16,7 @@
 #' @export
 merge_ppls_opts <- function(opts) {
   default_opts <- list()
+  default_opts$l <- 2
   default_opts$k_shared <- 2
   default_opts$k_unique <- c(2, 2)
   default_opts$n <- 100
@@ -57,7 +58,7 @@ ppls_shared <- function(opts = list()) {
 
   # data unique to each table
   params$V <- qr.Q(qr(matnorm(opts$p, opts$k_shared, opts$sigma0)))
-  for(l in seq_along(opts$k_unique)) {
+  for(l in seq_len(opts$l)) {
     params$U[[l]] <- matnorm(opts$n, opts$k_shared, opts$sigma0)
     params$W[[l]] <- matnorm(opts$n, opts$k_unique[l], opts$sigma0)
     params$S[[l]] <- qr.Q(qr(matnorm(opts$p, opts$k_unique[l], opts$sigma0)))
