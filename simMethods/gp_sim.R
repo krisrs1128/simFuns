@@ -56,3 +56,35 @@ mX$membership <- as.factor(memberships[mX$variable])
 ggplot(mX %>% filter(variable < 20)) +
   geom_point(aes(x = times, y = value, col = membership)) +
   facet_wrap(~variable)
+
+## ---- pca ----
+pca_res <- princomp(t(X))
+
+V <- pca_res$loadings
+class(V) <- "matrix"
+V <- data.frame(times = times, V)
+mV <- melt(V[, 1:10], id.vars = "times")
+ggplot(mV) +
+  geom_point(aes(x = times, y = value, col = variable)) +
+  facet_wrap(~variable) +
+  ggtitle("First 10 Loadings")
+
+U <- pca_res$scores[, 1:10]
+mU <- melt(data.frame(ix = 1:nrow(U), memberships = memberships, U),
+           id.vars = c("memberships", "ix"))
+mU$variable <- str_extract(mU$variable, "[0-9]+") %>%
+  as.numeric()
+
+mU_cast <- mU %>% dcast(ix + memberships ~ variable, value.var = "value")
+colnames(mU_cast)[3:ncol(mU_cast)] <- paste0("X", colnames(mU_cast)[3:ncol(mU_cast)])
+
+scores_plots <- list()
+for(i in seq_len(5)) {
+  for(j in seq_len(i - 1)) {
+    scores_plots[[paste0(i, j)]] <- ggplot(mU_cast) +
+      geom_point(aes_string(x = paste0("X", i), y = paste0("X", j), col = as.factor(memberships))) +
+      ggtitle(sprintf("Scores, axes %d vs. %d", i, j))
+  }
+}
+
+scores_plots
