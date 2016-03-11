@@ -1,0 +1,57 @@
+S
+################################################################################
+# Simulate data according to Daniela Witten's PMD paper
+################################################################################
+
+opts <- list()
+opts$n <- 504
+opts$p <- 10
+opts$k <- 2
+opts$l <- 2
+opts$sigma0 <- 5
+opts$sigma <- 1
+
+S <- qr.Q(qr(matnorm(opts$p, opts$k, opts$sigma0))) # same source between the two matrices
+W <- replicate(opts$l, matrix(0, opts$n, opts$k), simplify = F)
+W[[1]][, 1] <- c(rep(10, opts$n / 8), rep(-10, opts$n / 8),
+                  rep(10, opts$n / 8), rep(-10, opts$n / 8),
+                  rep(0, opts$n / 2))
+W[[1]][, 2] <- c(rep(10, opts$n / 4), rep(-10, opts$n / 4),
+                  rep(0, opts$n / 2))
+W[[2]][, 1] <- c(rep(0, opts$n / 4), rep(10, opts$n / 2), rep(-10, opts$n / 4))
+W[[2]][, 2] <- c(rep(-10, opts$n / 4), rep(10, opts$n / 4), rep(-10, opts$n / 4), rep(10, opts$n / 4))
+
+X <- common_source_model(W, S, opts)
+X <- lapply(X, scale)
+pairs(X[[1]][, 1:4])
+pca_sep <- lapply(X, princomp)
+pca_sep_scores <- lapply(pca_sep, function(x) x$scores)
+
+library("reshape2")
+library("ggplot2")
+library("dplyr")
+theme_set(theme_bw())
+
+D <- melt(list(Mu = Mu, pca_sep = pca_sep_scores))
+colnames(D) <- c("ix", "comp", "value", "table", "type")
+
+ggplot(D %>% filter(comp < 4)) +
+  geom_line(aes(x = ix, y = value, col = as.factor(comp)), alpha = 0.6, size = 1) +
+  facet_grid(type ~ table, scale = "free_y")
+
+library("PMA")
+?MultiCCA
+pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 10, ncomponents = 3)
+D2 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
+colnames(D2) <- c("ix", "comp", "value", "table", "type")
+ggplot(D2 %>% filter(comp < 4)) +
+  geom_line(aes(x = ix, y = value, col = as.factor(comp)), alpha = 0.6, size = 1) +
+  facet_grid(type ~ table, scale = "free_y")
+
+pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 5, type = "ordered",
+                    ncomponents = 3)
+D3 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
+colnames(D3) <- c("ix", "comp", "value", "table", "type")
+ggplot(D3 %>% filter(comp < 4)) +
+  geom_line(aes(x = ix, y = value, col = as.factor(comp)), alpha = 0.6, size = 1) +
+  facet_grid(type ~ table, scale = "free_y")
