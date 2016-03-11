@@ -14,8 +14,9 @@ opts$n <- 40 # number of sites
 opts$p <- c(100, 10) # number of species and environmental variables
 opts$sigma_env <- 10
 
-## Standard Poisson formulation ------------------------------------------------
+# Standard Poisson formulation ------------------------------------------------
 
+## ---- generate-data ----
 # Generate environmental data
 X <- list()
 X[["env"]] <- matnorm(opts$n, opts$p[2], opts$sigma_env)
@@ -23,10 +24,6 @@ X[["env"]] <- matnorm(opts$n, opts$p[2], opts$sigma_env)
 # create species means and variances
 mu_species <- rnorm(opts$p[1])
 var_species <- rgamma(opts$p[1], 20)
-
-plot(mu_species, ylim = c(-30, 30))
-points(mu_species + 1.96 * var_species, col = 'red')
-points(mu_species - 1.96 * var_species, col = 'red')
 
 # define a new gradient
 alpha <- rnorm(opts$p[2])
@@ -44,10 +41,6 @@ for(i in seq_len(opts$n)) {
   }
 }
 
-hist(exp(log_lambda_species[, 1]), 10)
-hist(exp(log_lambda_species[, 2]), 10)
-pairs(exp(log_lambda_species[, 1:5]))
-
 X[["species"]] <- matrix(0, opts$n, opts$p[1])
 for(k in seq_len(opts$p[1])) {
   X[["species"]][, k] <- rpois(opts$n, lambda = exp(log_lambda_species[, k]))
@@ -55,9 +48,19 @@ for(k in seq_len(opts$p[1])) {
 
 X[["species"]][rowSums(X[["species"]]) == 0, 1] <- 1
 
+## ---- plot-data-sim ----
+plot(mu_species, ylim = c(-50, 50))
+points(mu_species + 1.96 * var_species, col = 'red')
+points(mu_species - 1.96 * var_species, col = 'red')
+
+hist(exp(log_lambda_species[, 1]), 10)
+hist(exp(log_lambda_species[, 2]), 10)
+pairs(exp(log_lambda_species[, 1:5]))
+
 hist(X[["species"]][, 1])
 hist(X[["species"]][, 2])
 pairs(X[["species"]][, 1:10])
+pairs(log(1 + X[["species"]][, 1:10]))
 image(log(1 + X[["species"]]))
 
 ## ---- apply-cca ----
@@ -103,12 +106,6 @@ cancor_species[[1]] <- data.frame(cancor_res$corr.Y.Cy, type1 = "Y",
                                   type2 = "Cy", species_means = mu_species,
                                   species_vars = var_species)
 cancor_species[[2]] <- data.frame(cancor_res$corr.Y.Cx, type1 = "Y",
-                                  type2 = "Cx", species_means = mu_species,
-                                  species_vars = var_species)
-cancor_species[[3]] <- data.frame(cancor_res$corr.X.Cy, type1 = "X",
-                                  type2 = "Cy", species_means = mu_species,
-                                  species_vars = var_species)
-cancor_species[[4]] <- data.frame(cancor_res$corr.X.Cx, type1 = "X",
                                   type2 = "Cx", species_means = mu_species,
                                   species_vars = var_species)
 cancor_species <- do.call(rbind, cancor_species)

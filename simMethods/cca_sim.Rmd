@@ -1,0 +1,43 @@
+---
+title: "Canonical Correlation Sim"
+date: "`r Sys.Date()`"
+output: "pdf_document"
+---
+
+```{r}
+library("knitr")
+opts_chunk$set(fig.width = 8, fig.height = 5, warning = FALSE)
+read_chunk("cca_sim.R")
+```
+
+```{r, packages}
+```
+
+This generates data according to the standard poisson likelihood
+formulation. See for example "On Model Formulation in Constrained
+Ordination Analysis" by Zhu and Hastie.
+
+```{r, generate-data}
+```
+
+We can plot the simulated data, and some of the parameters that went
+into it.
+
+```{r, plot-data-sim}
+```
+
+We can apply the usual canonical correspondence analysis from `vegan`.
+
+```{r, apply-cca}
+```
+
+And we can inspect the scores in relation to the simulation setup.
+
+```{r, evaluate-scores}
+```
+
+As a point of reference, we can also run canonical correlations on the
+two matrices (log transforming the counts).
+
+```{r, cancor}
+```
