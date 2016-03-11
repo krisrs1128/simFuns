@@ -72,3 +72,17 @@ ggplot(D3 %>% filter(comp < 4)) +
   geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
              size = 1) +
   facet_grid(type ~ table ~ comp, scale = "free_y")
+
+## ---- mfa ----
+library("FactoMineR")
+mfa_res <- MFA(do.call(cbind, X), group = sapply(X, ncol))
+D <- melt(list(Mu = Mu,
+               mfa_group_one = mfa_res$separate.analyses$group.1$ind$coord[, 1:3],
+               mfa_group_two = mfa_res$separate.analyses$group.2$ind$coord[, 1:3]))
+str(mfa_res)
+colnames(D) <- c("ix", "comp", "value", "table", "type")
+
+ggplot(D %>% filter(comp < 4)) +
+  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
+             size = 1) +
+  facet_grid(type ~ table ~ comp, scale = "free_y")
