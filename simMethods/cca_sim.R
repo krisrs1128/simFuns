@@ -59,3 +59,7 @@ hist(X[["species"]][, 1])
 hist(X[["species"]][, 2])
 pairs(X[["species"]][, 1:10])
 image(log(1 + X[["species"]]))
+
+## ---- apply-cca ----
+cca_res <- cca(X[[2]], X[[1]])
+plot(cca_res)
