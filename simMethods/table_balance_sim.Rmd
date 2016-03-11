@@ -1,0 +1,33 @@
+---
+title: "Table Balance Simulation"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r}
+library("knitr")
+opts_chunk$set(fig.width = 8, fig.height = 5, warning = FALSE)
+read_chunk("table_balance_sim.R")
+```
+
+```{r, libraries}
+```
+
+
+```{r, opts}
+```
+
+```{r, utils}
+```
+
+```{r, source-scores}
+```
+
+```{r, pca-sep}
+```
+
+```{r, pca-concat}
+```
+
+```{r, mfa}
+```

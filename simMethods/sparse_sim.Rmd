@@ -1,0 +1,62 @@
+---
+title: "Sparse scores simulation"
+date: "`r Sys.Date()`"
+output: "pdf_document"
+---
+
+## Setup
+
+```{r}
+library("knitr")
+opts_chunk$set(fig.width = 8, fig.height = 5, warning = FALSE)
+read_chunk("sparse_sim.R")
+```
+
+```{r, packages}
+```
+
+## Generate Data
+
+
+These are general simulation parameters.
+
+```{r, opts}
+```
+
+These are the latent scores and sources.
+
+```{r, source-scores}
+```
+
+We generate data from these scores / sources.
+
+```{r, generate-data}
+```
+
+## PCA
+
+Two approaches to PCA on multitable data: either run a separate one on
+each table, or apply them to the concatenated data.
+
+```{r, separate-pcas}
+```
+
+```{r, concatenated-pca}
+```
+
+## PMD
+
+We use both the sparse and the fused-lasso variants of the PMD.
+
+```{r, pmd-unordered}
+```
+
+## MFA and CCA
+
+And as some other references we consider MFA and canonical correlations.
+
+```{r, mfa}
+```
+
+```{r, cca}
+```

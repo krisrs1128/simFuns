@@ -1,0 +1,34 @@
+---
+title: "Gaussian Process Simulation"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Setup
+
+```{r}
+library("knitr")
+opts_chunk$set(fig.width = 3.5, fig.height = 3.5, fig.show = "hold", warning = FALSE)
+read_chunk("gp_sim.R")
+scale_colour_discrete <- function(...)
+  scale_colour_brewer(..., palette="Set2")
+```
+
+```{r, packages}
+```
+
+## Generate Data
+
+```{r, opts}
+```
+
+```{r, make-sources, fig.width = 8}
+```
+
+```{r, make-scores, fig.width = 8}
+```
+
+## PCA
+
+```{r, pca}
+```

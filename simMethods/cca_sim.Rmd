@@ -1,5 +1,5 @@
 ---
-title: "Canonical Correlation Sim"
+title: "Canonical Correspondence Simulation"
 date: "`r Sys.Date()`"
 output: "pdf_document"
 ---
@@ -11,6 +11,9 @@ read_chunk("cca_sim.R")
 ```
 
 ```{r, packages}
+```
+
+```{r, opts}
 ```
 
 This generates data according to the standard poisson likelihood
