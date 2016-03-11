@@ -63,3 +63,55 @@ image(log(1 + X[["species"]]))
 ## ---- apply-cca ----
 cca_res <- cca(X[[2]], X[[1]])
 plot(cca_res)
+
+## ---- evaluate-scores ----
+site_scores <- cca_res$CCA$u[, 1:2]
+env_proj <- X[["env"]] %*% alpha
+
+ggplot(data.frame(site_scores, env = env_proj)) +
+  geom_point(aes(x = CCA1, y = CCA2, col = env)) +
+  scale_color_gradient2(mid = "antiquewhite") +
+  ggtitle("Recovered Environment Scores vs. Truth")
+
+species_scores <- cca_res$CCA$v[, 1:2]
+ggplot(data.frame(species_scores, mu = mu_species, sigma2 = var_species)) +
+  geom_point(aes(x = CCA1, y = CCA2, col = mu, size = sigma2)) +
+  scale_color_gradient2(mid = "antiquewhite") +
+  ggtitle("Recovered Species Scores vs. Species Means")
+
+ggplot(data.frame(species_scores, a = a, sigma2 = var_species)) +
+  geom_point(aes(x = CCA1, y = CCA2, col = a, size = sigma2)) +
+  scale_color_gradient2(mid = "antiquewhite") +
+  ggtitle("Recovered Species Scores vs. Species Baseline Abundance")
+
+## ---- cancor ----
+cancor_res <- CCorA(log(1 + X[["species"]]), X[["env"]])
+
+cancor_env <- list()
+cancor_env[[1]] <- data.frame(cancor_res$Cy, type = "Cy",
+                         env_proj = X[["env"]] %*% alpha)
+cancor_env[[2]] <- data.frame(cancor_res$Cx, type = "Cx",
+                         env_proj = X[["env"]] %*% alpha)
+cancor_env <- do.call(rbind, cancor_env)
+
+ggplot(cancor_env) +
+  geom_point(aes(x = CanAxis1, y = CanAxis2, col = env_proj)) +
+  facet_wrap(~type)
+
+cancor_species <- list()
+cancor_species[[1]] <- data.frame(cancor_res$corr.Y.Cy, type1 = "Y",
+                                  type2 = "Cy", species_means = mu_species,
+                                  species_vars = var_species)
+cancor_species[[2]] <- data.frame(cancor_res$corr.Y.Cx, type1 = "Y",
+                                  type2 = "Cx", species_means = mu_species,
+                                  species_vars = var_species)
+cancor_species[[3]] <- data.frame(cancor_res$corr.X.Cy, type1 = "X",
+                                  type2 = "Cy", species_means = mu_species,
+                                  species_vars = var_species)
+cancor_species[[4]] <- data.frame(cancor_res$corr.X.Cx, type1 = "X",
+                                  type2 = "Cx", species_means = mu_species,
+                                  species_vars = var_species)
+cancor_species <- do.call(rbind, cancor_species)
+ggplot(cancor_species) +
+  geom_point(aes(x = CanAxis1, y = CanAxis2, col = species_means, size = species_vars)) +
+  facet_grid(type1 ~ type2)
