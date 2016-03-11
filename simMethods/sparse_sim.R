@@ -8,6 +8,8 @@ library("reshape2")
 library("ggplot2")
 library("dplyr")
 library("PMA")
+library("vegan")
+library("FactoMineR")
 theme_set(theme_bw())
 
 ## ---- opts ----
@@ -74,12 +76,23 @@ ggplot(D3 %>% filter(comp < 4)) +
   facet_grid(type ~ table ~ comp, scale = "free_y")
 
 ## ---- mfa ----
-library("FactoMineR")
 mfa_res <- MFA(do.call(cbind, X), group = sapply(X, ncol))
 D <- melt(list(Mu = Mu,
                mfa_group_one = mfa_res$separate.analyses$group.1$ind$coord[, 1:3],
                mfa_group_two = mfa_res$separate.analyses$group.2$ind$coord[, 1:3]))
 str(mfa_res)
+colnames(D) <- c("ix", "comp", "value", "table", "type")
+
+ggplot(D %>% filter(comp < 4)) +
+  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
+             size = 1) +
+  facet_grid(type ~ table ~ comp, scale = "free_y")
+
+## ---- cca ----
+cca_res <- vegan::CCorA(X[[1]], X[[2]])
+D <- melt(list(Mu = Mu,
+               cca_x1 = cca_res$Cy[, 1:3],
+               cca_x2 = cca_res$Cx[, 1:3]))
 colnames(D) <- c("ix", "comp", "value", "table", "type")
 
 ggplot(D %>% filter(comp < 4)) +
