@@ -9,13 +9,14 @@ library("simData")
 library("reshape2")
 library("ggplot2")
 library("plyr")
+library("FactoMineR")
 library("dplyr")
 theme_set(theme_bw())
 
 ## ---- opts ----
 opts <- list()
-opts$n <- 500 # want divisible by 8
-opts$p <- c(20, 100)
+opts$n <- 1000 # want divisible by 8
+opts$p <- c(5, 900)
 opts$k <- 2
 opts$k_unique <- c(2, 5)
 opts$l <- 2
@@ -48,7 +49,17 @@ tb_data <- table_balance_data(opts)
 
 pairs(tb_data$W[[1]])
 pairs(tb_data$W[[2]])
-pairs(tb_data$X[[1]][, 1:10])
+pairs(tb_data$X[[1]])
+
+## ---- pca-concat ----
+pca_sep <- lapply(tb_data$X, princomp)
+pca_sep_scores <- lapply(pca_sep, function(x) x$scores)
+
+D <- melt(list(W = tb_data$W, pca_sep = pca_sep_scores))
+colnames(D) <- c("ix", "comp", "value", "table", "type")
+ggplot(D %>% filter(comp < 4)) +
+  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
+  facet_grid(type ~ table ~ comp, scale = "free_y")
 
 ## ---- pca-concat ----
 pca_concat <- princomp(do.call(cbind, tb_data$X))
@@ -57,4 +68,16 @@ D <- melt(list(W = tb_data$W, pca_concat = pca_concat$scores))
 colnames(D) <- c("ix", "comp", "value", "table", "type")
 ggplot(D %>% filter(comp < 4)) +
   geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
+  facet_grid(type ~ table ~ comp, scale = "free_y")
+
+## ---- mfa ----
+mfa_res <- MFA(do.call(cbind, tb_data$X), group = sapply(tb_data$X, ncol))
+D <- melt(list(W = tb_data$W,
+               mfa_group_one = mfa_res$separate.analyses$group.1$ind$coord[, 1:3],
+               mfa_group_two = mfa_res$separate.analyses$group.2$ind$coord[, 1:3]))
+colnames(D) <- c("ix", "comp", "value", "table", "type")
+
+ggplot(D %>% filter(comp < 4)) +
+  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
+             size = 1) +
   facet_grid(type ~ table ~ comp, scale = "free_y")
