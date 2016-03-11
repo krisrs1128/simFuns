@@ -33,6 +33,7 @@ gen_K_subset <- function(times, lower, upper, sigma) {
 }
 
 ## ---- opts ----
+set.seed(2016)
 opts <- list()
 opts$n <- 70 # samples
 opts$p <- 250 # OTUs

@@ -13,8 +13,9 @@ library("stringr")
 theme_set(theme_bw())
 
 ## ---- opts ----
+set.seed(2016)
 opts <- list()
-opts$n <- 30 # samples
+opts$n <- 70 # samples
 opts$p <- 250 # OTUs
 opts$sigma <- .5 # noise
 opts$k <- 6 # underlying OTU GPs
@@ -83,7 +84,8 @@ for(i in seq_len(5)) {
   for(j in seq_len(i - 1)) {
     scores_plots[[paste0(i, j)]] <- ggplot(mU_cast) +
       geom_point(aes_string(x = paste0("X", i), y = paste0("X", j), col = as.factor(memberships))) +
-      ggtitle(sprintf("Scores, axes %d vs. %d", i, j))
+      ggtitle(sprintf("Scores, axes %d vs. %d", i, j)) +
+      theme(legend.title = element_blank())
   }
 }
 

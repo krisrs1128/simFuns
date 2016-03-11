@@ -14,9 +14,8 @@ opts$n <- 40 # number of sites
 opts$p <- c(100, 10) # number of species and environmental variables
 opts$sigma_env <- 10
 
-# Standard Poisson formulation ------------------------------------------------
-
 ## ---- generate-data ----
+# Standard Poisson formulation ------------------------------------------------
 # Generate environmental data
 X <- list()
 X[["env"]] <- matnorm(opts$n, opts$p[2], opts$sigma_env)

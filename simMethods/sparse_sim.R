@@ -8,6 +8,7 @@ library("reshape2")
 library("ggplot2")
 library("dplyr")
 library("PMA")
+library("simData")
 library("vegan")
 library("FactoMineR")
 theme_set(theme_bw())
@@ -40,6 +41,7 @@ pairs(X[[1]][, 1:4])
 ## ---- separate-pcas ----
 pca_sep <- lapply(X, princomp)
 pca_sep_scores <- lapply(pca_sep, function(x) x$scores)
+Mu <- W
 
 D <- melt(list(Mu = Mu, pca_sep = pca_sep_scores))
 colnames(D) <- c("ix", "comp", "value", "table", "type")
@@ -53,9 +55,10 @@ pca_concat <- princomp(do.call(cbind, X))
 
 D <- melt(list(Mu = Mu, pca_concat = pca_concat$scores))
 colnames(D) <- c("ix", "comp", "value", "table", "type")
+
 ggplot(D %>% filter(comp < 4)) +
   geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
-  facet_wrap(type ~ table ~ comp, scale = "free_y")
+  facet_wrap(type ~ comp, scale = "free_y")
 
 ## ---- pmd-unordered ----
 pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 10, ncomponents = 3)
@@ -80,7 +83,6 @@ mfa_res <- MFA(do.call(cbind, X), group = sapply(X, ncol))
 D <- melt(list(Mu = Mu,
                mfa_group_one = mfa_res$separate.analyses$group.1$ind$coord[, 1:3],
                mfa_group_two = mfa_res$separate.analyses$group.2$ind$coord[, 1:3]))
-str(mfa_res)
 colnames(D) <- c("ix", "comp", "value", "table", "type")
 
 ggplot(D %>% filter(comp < 4)) +
