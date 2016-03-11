@@ -6,6 +6,7 @@
 
 ## ---- packages ----
 library("simData")
+library("vegan")
 
 ## ---- opts ----
 opts <- list()
@@ -21,7 +22,7 @@ X[["env"]] <- matnorm(opts$n, opts$p[2], opts$sigma_env)
 
 # create species means and variances
 mu_species <- rnorm(opts$p[1])
-var_species <- rgamma(opts$p[1], 5)
+var_species <- rgamma(opts$p[1], 20)
 
 plot(mu_species, ylim = c(-30, 30))
 points(mu_species + 1.96 * var_species, col = 'red')
@@ -51,6 +52,8 @@ X[["species"]] <- matrix(0, opts$n, opts$p[1])
 for(k in seq_len(opts$p[1])) {
   X[["species"]][, k] <- rpois(opts$n, lambda = exp(log_lambda_species[, k]))
 }
+
+X[["species"]][rowSums(X[["species"]]) == 0, 1] <- 1
 
 hist(X[["species"]][, 1])
 hist(X[["species"]][, 2])
