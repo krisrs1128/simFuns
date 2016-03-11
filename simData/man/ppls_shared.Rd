@@ -11,7 +11,7 @@ ppls_shared(opts = list())
 }
 \description{
 Generate L tables X[[l]], so that
-     X[[l]] = W[[l]] S[[l]]' + U * V' + E[[l]]
+     X[[l]] = W[[l]] S[[l]]' + U[[l]] * V' + E[[l]]
 where the W's and S's are k[[l]]-dimensional latent scores / factors,
 U and V are shared k_shared-dimensional scores / factors, generated from
 spherical normals with variance opts$sigma times the identity, and E is
