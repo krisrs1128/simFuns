@@ -9,11 +9,11 @@ library("simData")
 
 ## ---- opts ----
 opts <- list()
-opts$n <- 150
+opts$n <- 500
 opts$p <- c(20, 60)
 opts$k_shared <- 4
-opts$k_X <- 1
-opts$k_Y <- 1
+opts$k_X <- 2
+opts$k_Y <- 2
 opts$sigma_w0 <- 1
 opts$sigma_s0 <- 2 # same across all tables
 opts$sigma_x <- .5
@@ -35,9 +35,15 @@ W[["Y"]] <- matnorm(opts$n, opts$k_Y, opts$sigma_w0)
 ## ---- generate-data ----
 E <- list()
 E[["X"]] <- matnorm(opts$n, opts$p[2], opts$sigma_x)
-E[["Y"]] <- matnorm(opts$n, opts$p[2], opts$sigma_y)
+E[["Y"]] <- matnorm(opts$n, opts$p[1], opts$sigma_y)
 
-Y <- W[["shared"]] %*% t(S[["Y_shared"]]) + W[["Y"]] %*% t(S[["Y_unique"]])
-X <- W[["shared"]] %*% t(S[["X_shared"]]) + W[["X"]] %*% t(S[["X_unique"]])
+Y <- W[["shared"]] %*% t(S[["Y_shared"]]) + W[["Y"]] %*% t(S[["Y_unique"]]) + E[["Y"]]
+X <- W[["shared"]] %*% t(S[["X_shared"]]) + W[["X"]] %*% t(S[["X_unique"]]) + E[["X"]]
 
 pairs(cbind(Y[, 1:3], X[, 1:3]))
+
+## ---- cancor ----
+cancor_res <- cancor(X, Y)
+cancor_res
+
+pairs(cbind(S[["X_shared"]], cancor_res$xcoef[, 1:4]))
