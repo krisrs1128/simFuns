@@ -74,3 +74,47 @@ U <- cbind(z + 0.06 + rnorm(n, 0, .05),
 R <- scale(U, center = F, scale = c(1.5, 4.1))
 R <- sqrt(-5 * log(R))
 plot(R)
+
+## ---- cca-fukumizu ----
+cancor_res <- cancor(R[, 1], R[, 2])
+cancor_scores <- list(X1 = R[, 1] %*% cancor_res$xcoef,
+                      X2 = R[, 2] %*% cancor_res$ycoef)
+
+## ---- cca-fukumizu-plots ----
+ggplot(data.frame(cancor_scores, z)) +
+  geom_point(aes(x = X1, y = 0, col = z))
+ggplot(data.frame(cancor_scores, z)) +
+  geom_point(aes(x = X2, y = 0, col = z))
+
+ggplot(data.frame(cancor_scores, z)) +
+  geom_point(aes(x = X1, y = X2, col = z)) # correlation between scores
+
+## ---- kcca-fukumizu ----
+kcca_res <- kcca(as.matrix(R[, 1]), as.matrix(R[, 2]))
+kcca_scores <- list(X1 = kcca_res@xcoef, X2 = kcca_res@ycoef)
+
+## ---- cca-fukumizu-plots ----
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X1.1, y = 0, col = z))
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X2.1, y = 0, col = z))
+
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X1.1, y = X2.1, col = z))
+
+## ---- kcca-fukumizu ----
+kcca_res <- kcca(as.matrix(R[, 1]), as.matrix(R[, 2]), kpar = list(sigma = .4))
+kcca_scores <- list(X1 = kcca_res@xcoef, X2 = kcca_res@ycoef)
+
+## ---- cca-fukumizu-plots ----
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X1.1, y = X1.2, col = z))
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X2.1, y = X2.2, col = z))
+
+# remember, don't expect linear correlation
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X1.1, y = X2.1, col = z))
+ggplot(data.frame(kcca_scores, z)) +
+  geom_point(aes(x = X1.2, y = X2.2, col = z))
+
