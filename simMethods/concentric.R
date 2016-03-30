@@ -14,8 +14,8 @@ z <- as.factor(sample(0:1, n, replace = TRUE)) # class labels
 X <- list() # will store combined data frames
 
 r <- setNames(c(1, 2), c("0", "1")) # radii
-X[[1]] <- cbind(r[z], 2 * pi * runif(n)) + matrix(runif(2 * n), n, 2)
-X[[2]] <- cbind(r[z], 2 * pi * runif(n)) + matrix(runif(2 * n), n, 2)
+X[[1]] <- cbind(r[z], 2 * pi * rbeta(n, 1, 4)) + matrix(runif(2 * n), n, 2)
+X[[2]] <- cbind(sqrt(r[z]), 2 * pi * runif(n)) + matrix(runif(2 * n), n, 2)
 
 #X[[2]] <- r[z] %*% t(c(1, 1)) + matrix(runif(2 * n), n, 2) # if want linear vs. concentric
 
@@ -40,14 +40,17 @@ cancor_scores <- list(X1 = X[[1]] %*% cancor_res$xcoef,
 
 ## ---- cca-plots ----
 ggplot(data.frame(cancor_scores[[1]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z))
-ggplot(data.frame(cancor_scores[[2]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z)) # don't even need second component
+  geom_point(aes(x = X1, y = X2, col = z)) +
+  facet_wrap(~z)
+ggplot(data.frame(cancor_scores[[2]], z)) + # don't even need second component
+  geom_point(aes(x = X1, y = X2, col = z)) + 
+  facet_wrap(~z)
 
 ggplot(data.frame(cancor_scores, z)) +
   geom_point(aes(x = X1.1, y = X1.1, col = z)) # perfect correlation between scores
 ggplot(data.frame(cancor_scores, z)) + 
-  geom_point(aes(x = X1.2, y = X1.2, col = z))
+  geom_point(aes(x = X1.2, y = X1.2, col = z)) +
+
 
 ## ---- kcca ----
 kcca_res <- kcca(X[[1]], X[[2]])
@@ -56,8 +59,10 @@ kcca_scores <- list(X1 = kcca_res@xcoef,
 
 ## ---- kcca-plots ----
 ggplot(data.frame(kcca_scores[[1]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z))
+  geom_point(aes(x = X1, y = X2, col = z)) +
+  facet_wrap(~z)
 ggplot(data.frame(kcca_scores[[2]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z)) # don't even need second component
+  geom_point(aes(x = X1, y = X2, col = z)) +
+  facet_wrap(~z)
 kcca_res@kcor
 
