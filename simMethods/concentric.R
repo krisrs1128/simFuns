@@ -66,3 +66,11 @@ ggplot(data.frame(kcca_scores[[2]], z)) +
   facet_wrap(~z)
 kcca_res@kcor
 
+## ---- fukumizu-example ----
+# http://www.jmlr.org/papers/volume8/fukumizu07a/fukumizu07a.pdf
+z <- runif(n)
+U <- cbind(z + 0.06 + rnorm(n, 0, .05),
+           z + 3 + rnorm(n, 0, .05))
+R <- scale(U, center = F, scale = c(1.5, 4.1))
+R <- sqrt(-5 * log(R))
+plot(R)
