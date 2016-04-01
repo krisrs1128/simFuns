@@ -49,7 +49,7 @@ ggplot(data.frame(cancor_scores[[2]], z)) + # don't even need second component
 ggplot(data.frame(cancor_scores, z)) +
   geom_point(aes(x = X1.1, y = X1.1, col = z)) # perfect correlation between scores
 ggplot(data.frame(cancor_scores, z)) + 
-  geom_point(aes(x = X1.2, y = X1.2, col = z)) +
+  geom_point(aes(x = X1.2, y = X1.2, col = z))
 
 
 ## ---- kcca ----
@@ -94,7 +94,7 @@ ggplot(data.frame(cancor_scores, z)) +
 kcca_res <- kcca(as.matrix(R[, 1:2]), as.matrix(R[, 3:4]))
 kcca_scores <- list(X1 = kcca_res@xcoef, X2 = kcca_res@ycoef)
 
-## ---- cca-fukumizu-plots ----
+## ---- kcca-fukumizu-plots ----
 ggplot(data.frame(kcca_scores, z)) +
   geom_point(aes(x = X1.1, y = X1.2, col = z))
 ggplot(data.frame(kcca_scores, z)) +
@@ -105,11 +105,11 @@ ggplot(data.frame(kcca_scores, z)) +
 ggplot(data.frame(kcca_scores, z)) +
   geom_point(aes(x = X1.2, y = X2.2, col = z))
 
-## ---- kcca-fukumizu ----
+## ---- kcca-fukumizu2 ----
 kcca_res <- kcca(as.matrix(R[, 1:2]), as.matrix(R[, 3:4]), kpar = list(sigma = .4))
 kcca_scores <- list(X1 = kcca_res@xcoef, X2 = kcca_res@ycoef)
 
-## ---- cca-fukumizu-plots ----
+## ---- kcca-fukumizu-plots2 ----
 ggplot(data.frame(kcca_scores, z)) +
   geom_point(aes(x = X1.1, y = X1.2, col = z))
 ggplot(data.frame(kcca_scores, z)) +

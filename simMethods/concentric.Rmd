@@ -1,0 +1,59 @@
+---
+title: "Correlation between Concentric Circles"
+author: "Kris Sankaran"
+date: "April 1, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 3.5, fig.height = 3.5, fig.show = "hold", warning = FALSE)
+knitr::read_chunk("concentric.R")
+scale_colour_discrete <- function(...)
+  ggplot2::scale_colour_brewer(..., palette="Set2")
+```
+
+## Introduction
+
+```{r, libraries}
+```
+
+```{r, generate-data}
+```
+
+```{r, raw-data-plots}
+```
+
+```{r, usual-cca}
+```
+
+```{r, cca-plots}
+```
+
+```{r, kcca}
+```
+
+```{r, kcca-plots}
+```
+
+```{r, fukumizu-example}
+```
+
+
+```{r, cca-fukumizu}
+```
+
+
+```{r, cca-fukumizu-plots}
+```
+
+```{r, kcca-fukumizu}
+```
+
+```{r, kcca-fukumizu-plots}
+```
+
+```{r, kcca-fukumizu2}
+```
+
+```{r, kcca-fukumizu-plots2}
+```
