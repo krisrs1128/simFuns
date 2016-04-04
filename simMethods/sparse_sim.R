@@ -11,7 +11,8 @@ library("PMA")
 library("simData")
 library("vegan")
 library("FactoMineR")
-theme_set(theme_bw())
+theme_set(small_theme())
+set.seed(04032016)
 
 ## ---- sparse-sim-opts ----
 opts <- list()
@@ -33,10 +34,37 @@ W[[1]][, 2] <- c(rep(10, opts$n / 4), rep(-10, opts$n / 4),
 W[[2]][, 1] <- c(rep(0, opts$n / 4), rep(10, opts$n / 2), rep(-10, opts$n / 4))
 W[[2]][, 2] <- c(rep(-10, opts$n / 4), rep(10, opts$n / 4), rep(-10, opts$n / 4), rep(10, opts$n / 4))
 
+## ---- sparse-sim-plot-weights-setup ----
+mW <- melt(W)
+colnames(mW) <- c("i", "k", "w", "table")
+mW$k <- paste0("Latent Dimension ", mW$k)
+mW$table[mW$table == 1] <- "X"
+mW$table[mW$table == 2] <- "Y"
+
+## ---- sparse-sim-plot-weights ----
+ggplot(mW) +
+  geom_point(aes(x = i, y = w)) +
+  xlab("sample index") + 
+  facet_grid(table ~ k) +
+  ggtitle(paste0("Latent Weights W"))
+
 ## ---- sparse-sim-generate-data ----
 X <- common_source_model(W, S, opts)
 X <- lapply(X, scale)
-pairs(X[[1]][, 1:4])
+
+## ---- sparse-sim-plot-data-x ----
+colnames(X[[1]]) <- paste0("X", seq_len(ncol(X[[1]])))
+colnames(X[[2]]) <- paste0("Y", seq_len(ncol(X[[2]])))
+x_ix <- sample(seq_len(ncol(X[[1]])), 4)
+y_ix <- sample(seq_len(ncol(X[[1]])), 4)
+pairs(X[[1]][, x_ix], asp = 1, main = "Four columns of X")
+
+## ---- sparse-sim-plot-data-y ----
+pairs(X[[2]][, y_ix], asp = 1, main = "Four columns of Y")
+
+## ---- sparse-sim-plot-data-xy ----
+pairs(cbind(X[[1]][, x_ix[1:2]], X[[2]][, y_ix[1:2]]), asp = 1,
+      main = "Two columns of X vs. Two columns of Y")
 
 ## ---- sparse-sim-separate-pcas ----
 pca_sep <- lapply(X, princomp)
