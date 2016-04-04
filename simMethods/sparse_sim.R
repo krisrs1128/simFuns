@@ -4,15 +4,31 @@
 ################################################################################
 
 ## ---- sparse-sim-packages ----
-library("reshape2")
-library("ggplot2")
-library("dplyr")
-library("PMA")
-library("simData")
-library("vegan")
-library("FactoMineR")
+# List of packages for session
+.packages = c("reshape2",
+              "ggplot2",
+              "plyr",
+              "dplyr", 
+              "simData",
+              "PMA", 
+              "vegan",
+              "FactoMineR")
+
+# Install CRAN packages (if not already installed)
+.inst <- .packages %in% installed.packages()
+if(any(!.inst)) {
+  install.packages(.packages[!.inst], repos='http://cran.rstudio.com/')
+}
+
+# Load packages into session 
+lapply(.packages, require, character.only=TRUE)
 theme_set(small_theme())
 set.seed(04032016)
+
+cat("\014")  # Clear console
+
+rm(list=ls()) # Delete all existing variables
+graphics.off() # Close all open plots
 
 ## ---- sparse-sim-opts ----
 opts <- list()
@@ -23,7 +39,7 @@ opts$l <- 2
 opts$sigma0 <- 5
 opts$sigma <- 1
 
-## ---- sparse-sim-source-scores ----
+## ---- sparse-sim-source-weights ----
 S <- qr.Q(qr(matnorm(opts$p, opts$k, opts$sigma0))) # same source between the two matrices
 W <- replicate(opts$l, matrix(0, opts$n, opts$k), simplify = F)
 W[[1]][, 1] <- c(rep(10, opts$n / 8), rep(-10, opts$n / 8),
@@ -46,11 +62,10 @@ ggplot(mW) +
   geom_point(aes(x = i, y = w)) +
   xlab("sample index") + 
   facet_grid(table ~ k) +
-  ggtitle(paste0("Latent Weights W"))
+  ggtitle(paste0("True latent weights W"))
 
 ## ---- sparse-sim-generate-data ----
 X <- common_source_model(W, S, opts)
-X <- lapply(X, scale)
 
 ## ---- sparse-sim-plot-data-x ----
 colnames(X[[1]]) <- paste0("X", seq_len(ncol(X[[1]])))
@@ -65,6 +80,33 @@ pairs(X[[2]][, y_ix], asp = 1, main = "Four columns of Y")
 ## ---- sparse-sim-plot-data-xy ----
 pairs(cbind(X[[1]][, x_ix[1:2]], X[[2]][, y_ix[1:2]]), asp = 1,
       main = "Two columns of X vs. Two columns of Y")
+
+## ---- sparse-sim-pmd-unordered ----
+X <- lapply(X, scale)
+pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 10, ncomponents = 3)
+
+## ---- sparse-sim-pmd-unordered-plot ----
+mW_hat <- melt(pmd_res$ws)
+colnames(mW_hat) <- c("i", "k", "w", "table")
+mW_hat <- mW_hat %>% filter(k < 4)
+mW_hat$k <- paste0("Recovered Dimension ", mW_hat$k)
+mW_hat$table[mW_hat$table == 1] <- "X"
+mW_hat$table[mW_hat$table == 2] <- "Y"
+
+ggplot(mW_hat) +
+  geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
+  facet_grid(table ~ k) +
+  ggtitle(expression(paste("Recovered Weights ", hat(W))))
+
+## ---- sparse-sim-pmd-ordered ----
+pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 1, type = "ordered",
+                    ncomponents = 3)
+D3 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
+colnames(D3) <- c("ix", "comp", "value", "table", "type")
+ggplot(D3 %>% filter(comp < 4)) +
+  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
+             size = 1) +
+  facet_grid(type ~ table ~ comp, scale = "free_y")
 
 ## ---- sparse-sim-separate-pcas ----
 pca_sep <- lapply(X, princomp)
@@ -87,24 +129,6 @@ colnames(D) <- c("ix", "comp", "value", "table", "type")
 ggplot(D %>% filter(comp < 4)) +
   geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
   facet_wrap(type ~ comp, scale = "free_y")
-
-## ---- sparse-sim-pmd-unordered ----
-pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 10, ncomponents = 3)
-D2 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
-colnames(D2) <- c("ix", "comp", "value", "table", "type")
-ggplot(D2 %>% filter(comp < 4)) +
-  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
-  facet_grid(type ~ table ~ comp, scale = "free_y")
-
-## ---- sparse-sim-pmd-ordered ----
-pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 1, type = "ordered",
-                    ncomponents = 3)
-D3 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
-colnames(D3) <- c("ix", "comp", "value", "table", "type")
-ggplot(D3 %>% filter(comp < 4)) +
-  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
-             size = 1) +
-  facet_grid(type ~ table ~ comp, scale = "free_y")
 
 ## ---- sparse-sim-mfa ----
 mfa_res <- MFA(do.call(cbind, X), group = sapply(X, ncol))
