@@ -96,29 +96,40 @@ mW_hat$table[mW_hat$table == 2] <- "Y"
 ggplot(mW_hat) +
   geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
   facet_grid(table ~ k) +
-  ggtitle(expression(paste("Recovered Weights ", hat(W))))
+  ggtitle(expression(paste("Recovered Weights ", hat(W), " [PMD]")))
 
 ## ---- sparse-sim-pmd-ordered ----
-pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 1, type = "ordered",
-                    ncomponents = 3)
-D3 <- melt(list(Mu = Mu, pmd_sep = pmd_res$ws))
-colnames(D3) <- c("ix", "comp", "value", "table", "type")
-ggplot(D3 %>% filter(comp < 4)) +
-  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
-             size = 1) +
-  facet_grid(type ~ table ~ comp, scale = "free_y")
+pmd_res <- MultiCCA(lapply(X, function(x) t(x)), penalty = 1, type = "ordered")
+
+## ---- sparse-sim-pmd-ordered-plot ----
+mW_hat <- melt(pmd_res$ws)
+colnames(mW_hat) <- c("i", "k", "w", "table")
+mW_hat <- mW_hat %>% filter(k < 4)
+mW_hat$k <- paste0("Recovered Dimension ", mW_hat$k)
+mW_hat$table[mW_hat$table == 1] <- "X"
+mW_hat$table[mW_hat$table == 2] <- "Y"
+
+ggplot(mW_hat) +
+  geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
+  facet_grid(table ~ k) +
+  ggtitle(expression(paste("Recovered Weights ", hat(W), " [PMD, with Fused-lasso]")))
 
 ## ---- sparse-sim-separate-pcas ----
 pca_sep <- lapply(X, princomp)
 pca_sep_scores <- lapply(pca_sep, function(x) x$scores)
-Mu <- W
 
-D <- melt(list(Mu = Mu, pca_sep = pca_sep_scores))
-colnames(D) <- c("ix", "comp", "value", "table", "type")
+mW_hat <- melt(pca_sep_scores)
+mW_hat$Var2 <- as.numeric(gsub("Comp.", "", mW_hat$Var2))
+colnames(mW_hat) <- c("i", "k", "w", "table")
+mW_hat <- mW_hat %>% filter(k < 4)
+mW_hat$k <- paste0("Recovered Dimension ", mW_hat$k)
+mW_hat$table[mW_hat$table == 1] <- "X"
+mW_hat$table[mW_hat$table == 2] <- "Y"
 
-ggplot(D %>% filter(comp < 4)) +
-  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6, size = 1) +
-  facet_grid(type ~ table ~ comp, scale = "free_y")
+ggplot(mW_hat) +
+  geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
+  facet_grid(table ~ k) +
+  ggtitle(expression(paste("Recovered Weights ", hat(W), " [Separate PCAs]")))
 
 ## ---- sparse-sim-concatenated-pca ----
 pca_concat <- princomp(do.call(cbind, X))
@@ -144,12 +155,16 @@ ggplot(D %>% filter(comp < 4)) +
 
 ## ---- sparse-sim-cca ----
 cca_res <- vegan::CCorA(X[[1]], X[[2]])
-D <- melt(list(Mu = Mu,
-               cca_x1 = cca_res$Cy[, 1:3],
+mW_hat <- melt(list(cca_x1 = cca_res$Cy[, 1:3],
                cca_x2 = cca_res$Cx[, 1:3]))
-colnames(D) <- c("ix", "comp", "value", "table", "type")
 
-ggplot(D %>% filter(comp < 4)) +
-  geom_point(aes(x = ix, y = value, col = as.factor(comp), shape = type), alpha = 0.6,
-             size = 1) +
-  facet_grid(type ~ table ~ comp, scale = "free_y")
+colnames(mW_hat) <- c("i", "k", "w", "table")
+mW_hat$i <- as.numeric(gsub("Obj", "", mW_hat$i))
+mW_hat$k <- gsub("CanAxis", "Recovered Dimension ", mW_hat$k)
+mW_hat$table <- gsub("cca_x1", "X", mW_hat$table)
+mW_hat$table <- gsub("cca_x2", "Y", mW_hat$table)
+
+ggplot(mW_hat) +
+  geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
+  facet_grid(table ~ k) +
+  ggtitle(expression(paste("Recovered Weights ", hat(W))))
