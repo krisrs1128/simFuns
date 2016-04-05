@@ -21,7 +21,6 @@ if(any(!.inst)) {
 
 # Load packages into session 
 lapply(.packages, require, character.only=TRUE)
-theme_set(small_theme())
 set.seed(04032016)
 
 cat("\014")  # Clear console
