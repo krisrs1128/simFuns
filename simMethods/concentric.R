@@ -3,10 +3,25 @@
 # A nonlinear multitable example, made from two concentric circles.
 ################################################################################
 
-## ---- libraries ----
-library("kernlab")
-library("ggplot2")
-theme_set(theme_bw())
+## ---- concentric-packages ----
+# List of packages for session
+.packages = c("kernlab",
+              "ggplot2")
+
+# Install CRAN packages (if not already installed)
+.inst <- .packages %in% installed.packages()
+if(any(!.inst)) {
+  install.packages(.packages[!.inst], repos='http://cran.rstudio.com/')
+}
+
+# Load packages into session 
+lapply(.packages, require, character.only=TRUE)
+set.seed(04032016)
+
+cat("\014")  # Clear console
+
+rm(list=ls()) # Delete all existing variables
+graphics.off() # Close all open plots
 
 ## ---- generate-data ----
 n <- 100 # number of samples
