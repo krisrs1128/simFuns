@@ -11,7 +11,6 @@
               "dplyr", 
               "simData",
               "PMA", 
-              "vegan",
               "FactoMineR")
 
 # Install CRAN packages (if not already installed)
@@ -154,17 +153,15 @@ ggplot(D %>% filter(comp < 4)) +
   facet_grid(type ~ table ~ comp, scale = "free_y")
 
 ## ---- sparse-sim-cca ----
-cca_res <- vegan::CCorA(X[[1]], X[[2]])
-mW_hat <- melt(list(cca_x1 = cca_res$Cy[, 1:3],
-               cca_x2 = cca_res$Cx[, 1:3]))
-
+cancor_res <- cancor(X[[1]], X[[2]])
+mW_hat <- melt(list(list("X" = X[[1]] %*% cancor_res$xcoef[, 1:3]),
+                    list("Y" = X[[2]] %*% cancor_res$ycoef[, 1:3])))
 colnames(mW_hat) <- c("i", "k", "w", "table")
-mW_hat$i <- as.numeric(gsub("Obj", "", mW_hat$i))
-mW_hat$k <- gsub("CanAxis", "Recovered Dimension ", mW_hat$k)
-mW_hat$table <- gsub("cca_x1", "X", mW_hat$table)
-mW_hat$table <- gsub("cca_x2", "Y", mW_hat$table)
+mW_hat$k <- paste0("Recovered Dimension ", mW_hat$k)
+mW_hat$L1 <- NULL
 
+## ---- sparse-sim-cca-plot ----
 ggplot(mW_hat) +
   geom_point(aes(x = i, y = w), alpha = 0.6, size = 1) +
   facet_grid(table ~ k) +
-  ggtitle(expression(paste("Recovered Weights ", hat(W))))
+  ggtitle(expression(paste("Recovered Weights ", hat(W), " [CCA]")))
