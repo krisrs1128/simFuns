@@ -9,7 +9,7 @@
 
 ## ---- libraries ----
 library("simData")
-library("Matrix")
+library("expm")
 
 ## ---- opts ----
 opts <- list()
