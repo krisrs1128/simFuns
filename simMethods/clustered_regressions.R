@@ -11,16 +11,19 @@
 library("simData")
 library("expm")
 library("plyr")
+library("reshape2")
+library("bayesMult")
+library("ggplot2")
 library("dplyr")
+theme_set(theme_bw())
 
 ## ---- opts ----
 opts <- list()
-opts$n <- 1000
+opts$n <- 200
 opts$p <- c(100, 2) # 60 response dimensions, 20 features
 opts$k <- 3
-opts$sigma_x0 <- 2
-opts$sigma_b <- .8
-opts$sigma_y <- 2
+opts$sigma_b <- 1
+opts$sigma_y <- 4
 
 ## ---- fixed-params ----
 S <- matrix(c(0, 2, 3, 1, 2, 4), nrow = 2)
@@ -33,8 +36,6 @@ W <- t(model.matrix(~ w - 1, dfw, intercept = F))
 
 E <- matnorm(opts$p[2], opts$p[1], opts$sigma_b)
 B <- S %*% W + sqrtm(Psi) %*% E
-
-plot(t(B), asp = 1)
 
 ## ---- generate-data ----
 x_list <- list()
@@ -68,10 +69,10 @@ mY <- mY %>%
   left_join(mB)
 ggplot(mY) +
   geom_line(aes(x = Var1, y = value, group = L1, col = beta1)) +
-  ggtitle("1000 Genes, colored by coef. first OTU")
+  ggtitle("Genes, colored by coef. first OTU")
 ggplot(mY) +
   geom_line(aes(x = Var1, y = value, group = L1, col = beta2)) +
-  ggtitle("1000 Genes, colored by coef. second OTU")
+  ggtitle("Genes, colored by coef. second OTU")
 
 merged_lists <- lapply(seq_along(x_list), function(i) {
   data.frame(t = 1:opts$n, y = y_list[[i]], x = x_list[[i]])
@@ -80,9 +81,8 @@ merged_lists <- lapply(seq_along(x_list), function(i) {
 m_merged <- melt(merged_lists, id.vars = "t") %>%
   filter(L1 < 10)
 
-head(m_merged)
+clust <- as.factor(apply(W, 2, which.max))
 m_merged$cluster <- clust[m_merged$L1]
-
 ggplot(m_merged) +
   geom_line(aes(x = t, y = value, linetype = variable, col = cluster)) +
   facet_wrap(~L1) +
@@ -100,7 +100,6 @@ param_list <- list(S = S0, Psi = Psi0, phi = phi, sigma = sigma)
 vb_res <- vb_multinom(data_list, param_list, 4)
 
 pi_guess <- t(vb_res$var_list$pi)
-
 m <- t(vb_res$var_list$m)
 clust <- as.factor(apply(pi_guess, 1, which.max))
 m_df <- data.frame(m, clust = clust)
@@ -108,17 +107,42 @@ colnames(m_df) <- c("beta1", "beta2", "cluster")
 
 ## ---- plot-clusters ----
 ggplot(m_df) +
-  geom_point(aes(x = beta1, y = beta2, col = cluster))
+  geom_point(aes(x = beta1, y = beta2, col = cluster)) +
+  ggtitle("Recovered Clusters")
 
 ## ---- coord-desc ----
 qplot(seq_along(vb_res$elbo), vb_res$elbo) +
   ggtitle("Objective after each update")
 
-vb_res$var_list$m[, 1]
-plot(x_list[[1]][, 1], y_list[[1]])
-abline(a = 0, b = B[1, 1])
+## ---- naive-model ----
+B_lm <- matrix(0, nrow(B), ncol(B))
+for(r in seq_len(ncol(B))) {
+  B_lm[, r] <- coef(lm(y_list[[r]] ~ -1 + x_list[[r]]))
+}
+
+## ---- plot-b-hat ----
 B_hat <- vb_res$param_list$S %*% vb_res$var_list$pi
+mB_hat <- melt(B_hat)
+colnames(mB_hat) <- c("var", "L1", "beta_hat")
 
+mB_lm_hat <- melt(B_lm)
+colnames(mB_lm_hat) <- c("var", "L1", "beta_lm_hat")
 
+mB <- melt(B)
+colnames(mB) <- c("var", "L1", "beta")
+mB <- data.frame(mB, beta_lm_hat = mB_lm_hat$beta_lm_hat,
+                 beta_hat = mB_hat$beta_hat)
 
-head(m_merged)
+merged_cast <- m_merged %>%
+  dcast(t + L1 + cluster ~ variable) %>%
+  left_join(mB) %>%
+  filter(var == "1", L1 <= 9) %>%
+  arrange(L1, t)
+
+ggplot(merged_cast) +
+  geom_point(aes(x = x.1, y = y, col = cluster), size = .5) +
+  geom_abline(aes(intercept = 0, slope = beta), col = 'purple') +
+  geom_abline(aes(intercept = 0, slope = beta_lm_hat), col = 'steelblue') +
+  geom_abline(aes(intercept = 0, slope = beta_hat), col = 'indianred') +
+  facet_wrap(~L1) +
+  ggtitle("OTU 1 vs. 9 Genes")
