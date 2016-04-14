@@ -1,0 +1,50 @@
+---
+title: "Untitled"
+author: "Kris Sankaran"
+date: "April 1, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+set.seed(042016)
+knitr::opts_chunk$set(echo = TRUE, fig.path = "~/Desktop/")
+read_chunk("clustered_regressions.R")
+scale_colour_discrete <- function(...)
+  scale_colour_brewer(..., palette="Set2")
+```
+
+```{r, libraries}
+```
+
+```{r, opts}
+```
+
+```{r, fixed-params}
+```
+
+```{random-params}
+```
+
+```{r, generate-data
+```
+
+```{r, plot-x}
+```
+
+```{r, plot-y}
+```
+
+```{r, run-vb}
+```
+
+```{r, plot-clusters}
+```
+
+```{r, coord-desc}
+```
+
+```{r, naive-model}
+```
+
+```{r, plot-b-hat}
+```
