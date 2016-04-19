@@ -2,7 +2,7 @@
 % Please edit documentation in R/spikes.R
 \name{symm_spike}
 \alias{symm_spike}
-\title{Functional for creating spikes}
+\title{Functional for creating symmetric spikes}
 \usage{
 symm_spike(x0, h, w)
 }
