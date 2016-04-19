@@ -54,3 +54,58 @@ symm_spike_sum <- function(x0, h, w) {
     rowSums(fx)
   }
 }
+
+#' @title Merge default parameters for random symmetric spike generation
+#' @param opts A (partially filled) list of parameters to use when sampling
+#' spikes. The currently available options are,
+#'   $lambda_m The poisson parameter for the number of spikes to draw
+#'   $lambda_h The exponential parameter for the height of the spikes.
+#'   $lambda_w The exponential parameter for the width of the spikes.
+#'   $alpha_x0 The first shape beta parameter for the positions of the
+#' spikes.
+#'   $beta_x0 The second shape beta parameter for the positions of the
+#' spikes.
+#'   $M The rescaling factor for the positions of the spikes (so they aren't
+#'   just in the unit interval.
+#' @export
+merge_rsymm_opts <- function(opts = list()) {
+  default_opts <- list()
+  default_opts$lambda_m  <- 4
+  default_opts$lambda_h <-  1
+  default_opts$lambda_w  <- 1
+  default_opts$alpha_x0  <- 1
+  default_opts$beta_x0  <-  1
+  default_opts$M <- 10
+  modifyList(default_opts, opts)
+}
+
+#' @title Generate a list of random spike sum functions
+#' @param n The number of random spike sum functions to return
+#' @param opts A list specifying how the spike functions are created. See
+#' merge_rsymm_opts() for available options.
+#' @export
+#' @examples
+#' x <- seq(-4, 10, .01)
+#' f_list <- rsymm_spike(10, list(M = 10)
+#' fx <- sapply(f_list, function(f) { f(x) })
+#' library("reshape2")
+#' library("ggplot2")
+#' mx <- melt(data.frame(x = x, fx = fx), id.vars = "x")
+#' ggplot(mx) +
+#'   geom_line(aes(x = x, y = value)) +
+#'   facet_wrap(~variable) +
+#'   theme_bw()
+rsymm_spike <- function(n, opts = list()) {
+  opts <- merge_rsymm_opts(opts)
+
+  # generate spike parameters
+  m <- rpois(n, opts$lambda_m)
+  f_list <- list()
+  for (i in seq_len(n)) {
+    h <- rexp(m[i], opts$lambda_h)
+    w <- rexp(m[i], opts$lambda_w)
+    x0 <- opts$M * rbeta(m[i], opts$alpha_x0, opts$beta_x0)
+    f_list[[i]] <- symm_spike_sum(x0, h, w)
+  }
+  f_list
+}
