@@ -45,7 +45,8 @@ symm_spike <- function(x0, h, w) {
 #' x <- seq(2, 20, .01)
 #' plot(x, f(x))
 symm_spike_sum <- function(x0, h, w) {
-  stopifnot(length(x0) == length(h) && length(x0) == length(w))
+  param_len <- c(length(x0), length(h), length(x0), length(w))
+  stopifnot(abs(max(param_len) - min(param_len)) == 0)
   function(x) {
     fx <- matrix(0, length(x), length(x0))
     for (j in seq_along(x0)) {
