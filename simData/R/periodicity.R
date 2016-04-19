@@ -26,3 +26,32 @@ periodicity <- function(x_left, x_right, h, period) {
     fx
   }
 }
+
+#' @title Functional returning sum of periodic functions
+#' @description Generates the function
+#' \sum_{j} h[j] * sin(2 * pi * x * period[j]) I(x \in [x_left[j] x_right[j]])
+#' @param x_left Left endpoints of the nonzero intervals.
+#' @param x_right Right endpoints of the nonzero intervals.
+#' @param h The maximum heights of the oscillations.
+#' @param period The periods of the functions.
+#' @examples
+#' x <- seq(2, 10, .01)
+#' x_left <- c(1, 5, 6)
+#' x_right <- c(3, 9, 7)
+#' h <- c(2, 1, 3)
+#' period <- c(1, 5, 2)
+#' f <- periodicity_sum(x_left, x_right, h, period)
+#' plot(x, f(x), type = "l")
+#' plot(x, cumsum(1 + f(x)), type = "l")
+#'@export
+periodicity_sum <- function(x_left, x_right, h, period) {
+  param_len <- c(length(x_left), length(x_right), length(h), length(period))
+  stopifnot(abs(max(param_len) - min(param_len)) == 0)
+  function(x) {
+    fx <- matrix(0, length(x), length(x_left))
+    for (j in seq_along(x_left)) {
+      fx[, j] <- periodicity(x_left[j], x_right[j], h[j], period[j])(x)
+    }
+    rowSums(fx)
+  }
+}
