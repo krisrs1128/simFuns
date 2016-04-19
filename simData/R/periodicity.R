@@ -55,3 +55,51 @@ periodicity_sum <- function(x_left, x_right, h, period) {
     rowSums(fx)
   }
 }
+
+#' @title Merge default options when generating periodic functions
+merge_rperiodicity_opts <- function(opts = list()) {
+  default_opts <- list()
+  default_opts$lambda_m  <- 4
+  default_opts$lambda_h <- 1
+  default_opts$alpha_per <- 2
+  default_opts$lambda_per <- 3
+  default_opts$lambda_w  <- 1
+  default_opts$alpha_x0  <- 1
+  default_opts$beta_x0  <-  1
+  default_opts$M <- 10
+  modifyList(default_opts, opts)
+}
+
+#' @title Generate functions that are random sums of periodicities 
+#' @param n The total number of functions to return.
+#' @param opts A list of options for how to generate the periodicity parameters.
+#' See merge_rperiodicity_opts() for possible arguments.
+#' @return A list of functions with random parameters, which can be evaluated
+#' on new x's.
+#' @examples
+#' x <- seq(0, 10, .01)
+#' f_list <- rperiodicity(10, list(M = 10))
+#' fx <- sapply(f_list, function(f) { f(x) })
+#' library("reshape2")
+#' library("ggplot2")
+#' mx <- melt(data.frame(x = x, fx = fx), id.vars = "x")
+#' ggplot(mx) +
+#'   geom_line(aes(x = x, y = value)) +
+#'   facet_wrap(~variable) +
+#'    theme_bw()
+#' @export
+rperiodicity <- function(n, opts = list()) {
+  opts <- merge_rperiodicity_opts(opts)
+
+  # generate spike parameters
+  m <- rpois(n, opts$lambda_m)
+  f_list <- list()
+  for (i in seq_len(n)) {
+    h <- rexp(m[i], opts$lambda_h)
+    w <- rexp(m[i], opts$lambda_w)
+    x0 <- opts$M * rbeta(m[i], opts$alpha_x0, opts$beta_x0)
+    period <- rgamma(m[i], opts$alpha_per, opts$lambda_per)
+    f_list[[i]] <- periodicity_sum(x0, x0 + w, h, period)
+  }
+  f_list
+}
