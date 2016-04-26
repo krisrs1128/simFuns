@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(fig.width = 3.5, fig.height = 3.5, fig.show = "hold", warning = FALSE)
+knitr::opts_chunk$set(fig.width = 3.5, fig.height = 3.5, fig.show = "hold", warning = FALSE, dev = "pdf")
 knitr::read_chunk("kcca.R")
 scale_colour_discrete <- function(...)
   ggplot2::scale_colour_brewer(..., palette="Set2")
@@ -38,10 +38,8 @@ scale_colour_discrete <- function(...)
 ```{r, fukumizu-example}
 ```
 
-
 ```{r, cca-fukumizu}
 ```
-
 
 ```{r, cca-fukumizu-plots}
 ```

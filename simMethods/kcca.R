@@ -3,9 +3,10 @@
 # A nonlinear multitable example, made from two concentric circles.
 ################################################################################
 
-## ---- concentric-packages ----
+## ---- libraries ----
 # List of packages for session
 .packages = c("kernlab",
+              "gridExtra",
               "ggplot2")
 
 # Install CRAN packages (if not already installed)
@@ -20,6 +21,7 @@ set.seed(04032016)
 
 cat("\014")  # Clear console
 
+theme_set(theme_bw())
 rm(list=ls()) # Delete all existing variables
 graphics.off() # Close all open plots
 
@@ -31,6 +33,11 @@ X <- list() # will store combined data frames
 r <- setNames(c(1, 2.5), c("0", "1")) # radii
 X[[1]] <- cbind(r[z], 2 * pi * rbeta(n, 1, 4)) + matrix(runif(2 * n), n, 2)
 X[[2]] <- cbind(sqrt(r[z]), 2 * pi * runif(n)) + matrix(runif(2 * n), n, 2)
+X <- X %>%
+  lapply(function(x) {
+    rownames(x) <- NULL
+    x
+  })
 
 ## ---- raw-data-plots ----
 X1_df <- data.frame(X[[1]], z)
@@ -41,45 +48,45 @@ X2_df <- data.frame(X[[2]], z)
 X2_df$x <- X2_df$X1 * cos(X2_df$X2)
 X2_df$y <- X2_df$X1 * sin(X2_df$X2)
 
-ggplot(X1_df) +
+p1 <- ggplot(X1_df) +
   geom_point(aes(x = x, y = y, col = z))
-ggplot(X2_df) +
+p2 <- ggplot(X2_df) +
   geom_point(aes(x = x, y = y, col = z))
+grid.arrange(p1, p2, ncol = 2)
 
 ## ---- usual-cca ----
 cancor_res <- cancor(X[[1]], X[[2]])
 cancor_scores <- list(X1 = X[[1]] %*% cancor_res$xcoef,
                       X2 = X[[2]] %*% cancor_res$ycoef)
+cor(cancor_scores[[1]][, 1], cancor_scores[[2]][, 1]) %>%
+  round(3)
 
 ## ---- cca-plots ----
-ggplot(data.frame(cancor_scores[[1]], z)) +
+p1 <- ggplot(data.frame(cancor_scores[[1]], z)) +
   geom_point(aes(x = X1, y = X2, col = z)) +
-  ggtitle("CCA X-Scores (Nonlinear Example)")
-ggplot(data.frame(cancor_scores, z)) +
+  ggtitle("CCA X-Scores (Concentric Circles)")
+p2 <- ggplot(data.frame(cancor_scores, z)) +
   geom_point(aes(x = X1.1, y = X2.1, col = z)) +
   ggtitle("CCA Correlation between X1, Y1 Scores")
+grid.arrange(p1, p2, ncol = 2)
 
 ## ---- kcca ----
-kcca_res <- kcca(X[[1]], X[[2]], kpar=list(sigma=2), gamma = 0.1, ncomps = 2)
-kcca_res
+kcca_res <- kcca(X[[1]], X[[2]],
+                 kernel = "rbfdot",
+                 kpar = list(sigma = 2),
+                 gamma = .25, ncomps = 2)
+round(kcca_res@kcor, 3)
 kcca_scores <- list(X1 = kcca_res@xcoef,
                     X2 = kcca_res@ycoef)
 
 ## ---- kcca-plots ----
-ggplot(data.frame(kcca_scores[[1]], z)) +
+p1 <- ggplot(data.frame(kcca_scores[[1]], z)) +
   geom_point(aes(x = X1, y = X2, col = z)) +
   ggtitle("KCCA X-Scores (Nonlinear Example)")
-ggplot(data.frame(kcca_scores)) +
+p2 <- ggplot(data.frame(kcca_scores)) +
   geom_point(aes(x = X1.1, y = X2.1, col = z)) +
   ggtitle("KCCA Correlation between X1, Y1 Scores")
-
-data.frame(head(kcca_scores))
-
-ggplot(data.frame(kcca_scores[[1]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z))
-ggplot(data.frame(kcca_scores[[2]], z)) +
-  geom_point(aes(x = X1, y = X2, col = z))
-kcca_res@kcor
+grid.arrange(p1, p2, ncol = 2)
 
 ## ---- fukumizu-example ----
 # http://www.jmlr.org/papers/volume8/fukumizu07a/fukumizu07a.pdf
