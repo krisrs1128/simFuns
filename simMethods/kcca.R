@@ -6,6 +6,8 @@
 ## ---- libraries ----
 # List of packages for session
 .packages = c("kernlab",
+              "plyr",
+              "dplyr",
               "gridExtra",
               "ggplot2")
 
