@@ -39,9 +39,6 @@ set.seed(5052016)
 ## ---- fixed-params ----
 S <- matrix(rnorm(opts$p[2] * opts$k, 0, sd = opts$sigma_s),
             opts$p[2], opts$k)
-#S[1:(opts$p[2] / 2), ] <- S[1:(opts$p[2] / 2)] + 1
-#S[(opts$p[2] / 2 + 1):opts$p[2], ] <- S[(opts$p[2] / 2 + 1):opts$p[2], ] - 1
-#S <- S[sample(1:opts$p[2]), ]
 Psi <- diag(opts$p[2])
 
 ## ---- random-params ----
@@ -71,7 +68,6 @@ y_list <- list()
 
 unique_ts <- list()
 for(p in seq_len(opts$p[2])) {
-  #unique_ts[[p]] <- arima.sim(list(order = c(1,1,0), ar = 0.7), n = opts$n)[-1]
   unique_ts[[p]] <- rnorm(opts$n)
 }
 
