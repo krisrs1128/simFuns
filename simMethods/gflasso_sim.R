@@ -48,8 +48,9 @@ Y <- X %*% B + matrix(rnorm(n * K, 0, .5), n, K)
 ## ---- vis-B ----
 m_b <- melt(B, varnames = c("feature", "task"), value.name = "beta")
 ggplot(m_b) +
-  geom_tile(aes(x = task, y = feature, fill = beta)) +
+  geom_tile(aes(x = task, y = feature, fill = beta, color = beta)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
+  scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
   theme(panel.grid = element_blank())
 
 ## ---- vis-reg-data ----
@@ -114,11 +115,12 @@ ggplot(b_compare) +
 
 ## ---- vis-Bhat-gflasso ----
 gflasso_mb <- melt(gflasso_res$B, varnames = c("feature", "task"),
-               value.name = "beta_hat")
+               value.name = "beta_hat_gflasso")
 
 ggplot(gflasso_mb) +
-  geom_tile(aes(x = task, y = feature, fill = beta_hat)) +
+  geom_tile(aes(x = task, y = feature, fill = beta_hat_gflasso, color = beta_hat_gflasso)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
+  scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
   theme(panel.grid = element_blank())
 
 ## ---- gflasso-reg-bhat ----
@@ -130,15 +132,15 @@ reg_fit_data$zero <- reg_fit_data$beta == 0
 cur_fit_data <- reg_fit_data %>%
   filter(task %in% 95:105,
          feature %in% 1:10) %>%
-  melt(measure.vars = c("beta", "beta_hat"), variable.name = "coef")
+  melt(measure.vars = c("beta", "beta_hat_gflasso"), variable.name = "coef")
 
 ## ---- vis-reg-fit ----
 ggplot(cur_fit_data) +
   geom_point(aes(x = x, y = y, col = zero), 
-             size = .3, alpha = 0.05) +
+             size = .3, alpha = 0.15) +
   geom_abline(data = cur_fit_data,
               aes(slope = value, intercept = 0, col = zero, linetype = coef),
-              alpha = 0.9) +
+              alpha = 0.9, size = 0.2) +
   scale_color_manual(values = c("#8068ab", "#d9bad8")) +
   facet_grid(feature ~ task) +
   theme(panel.grid = element_blank(),
@@ -178,8 +180,10 @@ lasso_mb <- melt(b_lasso, varnames = c("feature", "task"),
                  value.name = "beta_hat_lasso")
 
 ggplot(lasso_mb) +
-  geom_tile(aes(x = task, y = feature, fill = beta_hat_lasso)) +
+  geom_tile(aes(x = task, y = feature, fill = beta_hat_lasso,
+                color = beta_hat_lasso)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
+  scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
   theme(panel.grid = element_blank())
 
 ## ---- lasso-reg-bhat ----
@@ -192,15 +196,16 @@ reg_fit_data$zero <- reg_fit_data$beta == 0
 cur_fit_data <- reg_fit_data %>%
   filter(task %in% 95:105,
          feature %in% 1:10) %>%
-  melt(measure.vars = c("beta", "beta_hat_lasso"), variable.name = "coef")
+  melt(measure.vars = c("beta", "beta_hat_lasso"),
+       variable.name = "coef")
 
 ## ---- vis-lasso-fit ----
 ggplot(cur_fit_data) +
   geom_point(aes(x = x, y = y, col = zero), 
-             size = .3, alpha = 0.05) +
+             size = .3, alpha = 0.15) +
   geom_abline(data = cur_fit_data,
               aes(slope = value, intercept = 0, col = zero, linetype = coef),
-              alpha = 0.9) +
+              alpha = 0.9, size = .2) +
   scale_color_manual(values = c("#8068ab", "#d9bad8")) +
   facet_grid(feature ~ task) +
   theme(panel.grid = element_blank(),
