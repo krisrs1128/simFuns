@@ -195,7 +195,7 @@ ggplot(plot_betas_df) +
   facet_grid(. ~ slope_type, labeller = as_labeller(methods_label))
 
 ## ---- plot-fitted-reg ----
-methods_label_short <- c(c("vb_slope" = "VB",
+methods_label_short <- c(c("vb_slope" = "BM",
                            "lm_slope" = "LM"),
                          setNames(1:10, 1:10))
 ggplot(m_merged_data_fit %>%
@@ -211,7 +211,7 @@ ggplot(m_merged_data_fit %>%
                   col = as.factor(cluster))) +
   scale_y_continuous(breaks = c(-15, 0, 15)) +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
-  scale_linetype(labels = c("True", "LM", "VB")) +
+  scale_linetype(labels = c("True", "LM", "BM")) +
   labs(linetype = "Slope", col = "Task Cluster") +
   facet_grid(feature ~ slope_type ~ task,
              labeller = as_labeller(methods_label_short))
