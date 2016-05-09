@@ -171,14 +171,6 @@ merged_data_fit  <- merged_data %>%
   left_join(m_vjj_vb)
 
 m_merged_data_fit <- merged_data_fit %>%
-  melt(measure.vars = c("slope", "vb_slope", "lm_slope"),
-       variable.name = c("slope_type"), value.name = "slope") %>%
-  melt(measure.vars = c("lm_var", "vb_var"), variable.name = "var_type",
-       value.name = c("variance"))
-
-## ---- plot-betas ----
-plot_betas_df <- merged_data_fit %>%
-  filter(time == 1) %>%
   melt(measure.vars = c("vb_slope", "lm_slope"),
        variable.name = c("slope_type"), value.name = "slope_est") %>%
   melt(measure.vars = c("lm_var", "vb_var"), variable.name = "var_type",
@@ -186,32 +178,40 @@ plot_betas_df <- merged_data_fit %>%
   filter(!(slope_type == "lm_slope" & var_type == "vb_var"),
          !(slope_type == "vb_slope" & var_type == "lm_var"))
 
-method_labeller <- function(variable, value) {
-  list("vb_slope" = "Bayesian Multitask",
-       "lm_slope" = "Independent Regressions")[value]
-}
+## ---- plot-betas ----
+plot_betas_df <- m_merged_data_fit %>%
+  filter(time == 1)
 
+methods_label <- c("vb_slope" = "Bayesian Multitask",
+                   "lm_slope" = "Independent Regressions")
 ggplot(plot_betas_df) +
+  geom_abline(slope = 1, intercept = 0, col = "#db4551", size = .5) +
   geom_errorbar(aes(x = slope, ymin = slope_est - 1.9 * sqrt(variance),
-                    ymax = slope_est + 1.9 * sqrt(variance)), size = .05) +
-  geom_point(aes(x = slope, y = slope_est), size = .2) +
-  geom_abline(slope = 1, intercept = 0, col = "#4A4A4A") +
-  labs(color = "Method",
-       y = "Estimated Slope",
-       x = "True Slope") +
-  facet_grid(. ~ slope_type, labeller = method_labeller)
-
-ggplot(plot_betas_df) +
-  geom_abline(slope = 1, intercept = 0, col = "#696969") +
-  geom_point(aes(x = slope, y = value, col = variable), alpha = 0.5) +
-  facet_wrap(~variable) +
-  coord_fixed()
+                    ymax = slope_est + 1.9 * sqrt(variance)),
+                size = .05, col = "#292929") +
+  geom_point(aes(x = slope, y = slope_est), col =  "#292929", size = .2) +
+  coord_fixed() +
+  labs(color = "Method", y = "Estimated Slope", x = "True Slope") +
+  facet_grid(. ~ slope_type, labeller = as_labeller(methods_label))
 
 ## ---- plot-fitted-reg ----
+methods_label_short <- c(c("vb_slope" = "VB",
+                           "lm_slope" = "LM"),
+                         setNames(1:10, 1:10))
 ggplot(m_merged_data_fit %>%
          filter(task < 10, feature < 5)) +
   geom_point(aes(x = x, y = y, col = as.factor(cluster)), size = .3) +
-  geom_abline(aes(slope = slope, intercept = 0, linetype = slope_type,
+  geom_abline(aes(slope = slope_est, intercept = 0, linetype = slope_type,
                   col = as.factor(cluster))) +
+  geom_abline(aes(slope = slope_est + 1.9 * sqrt(variance), intercept = 0,
+                  col = as.factor(cluster), linetype = slope_type), alpha = 0.4) +
+  geom_abline(aes(slope = slope_est - 1.9 * sqrt(variance), intercept = 0,
+                  col = as.factor(cluster), linetype = slope_type), alpha = 0.4) +
+  geom_abline(aes(slope = slope, intercept = 0, linetype = "True",
+                  col = as.factor(cluster))) +
+  scale_y_continuous(breaks = c(-15, 0, 15)) +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
-  facet_grid(feature ~ task)
+  scale_linetype(labels = c("True", "LM", "VB")) +
+  labs(linetype = "Slope", col = "Task Cluster") +
+  facet_grid(feature ~ slope_type ~ task,
+             labeller = as_labeller(methods_label_short))
