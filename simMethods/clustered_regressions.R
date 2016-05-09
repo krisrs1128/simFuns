@@ -72,9 +72,14 @@ m_b$true_clust <- true_clust[m_b$Var2]
 m_b$Var1 <- factor(m_b$Var1, opts$p[1]:1)
 
 ggplot(m_b) +
-  geom_tile(aes(y = Var1, x = reorder(Var2, true_clust), fill = value)) +
-  scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
+  geom_tile(aes(y = Var1, x = reorder(Var2, true_clust), fill = value,
+                col = value)) +
+  scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
+                       limits = c(-8.75, 8.75)) +
+  scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
+                        limits = c(-8.75, 8.75)) +
   labs(fill = "Coef. Value", x = "Tasks [reordered]", y = "Features") +
+  guides(col = FALSE) +
   theme(axis.text.x = element_text(angle = -90))
 
 ## ---- generate-data ----
@@ -215,3 +220,19 @@ ggplot(m_merged_data_fit %>%
   labs(linetype = "Slope", col = "Task Cluster") +
   facet_grid(feature ~ slope_type ~ task,
              labeller = as_labeller(methods_label_short))
+
+## ---- plot-betas-image ----
+plot_betas_df$true_clust <- true_clust[plot_betas_df$task]
+plot_betas_df$feature <- factor(plot_betas_df$feature, opts$p[1]:1)
+ggplot(plot_betas_df) +
+  geom_tile(aes(y = feature, x = reorder(task, true_clust),
+                fill = slope_est, col = slope_est)) +
+  facet_grid(slope_type ~ ., labeller = as_labeller(methods_label)) +
+  scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
+                       limits = c(-8.75, 8.75)) +
+  scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
+                        limits = c(-8.75, 8.75)) +
+  labs(fill = "Coef. Value", x = "Tasks [reordered]", y = "Features") +
+  guides(col = FALSE) +
+  theme(axis.text.x = element_text(angle = -90))
+
