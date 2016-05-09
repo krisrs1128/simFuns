@@ -16,7 +16,7 @@ library("ggplot2")
 library("dplyr")
 
 theme_set(theme_bw())
-min_theme <- theme(panel.border = element_blank(),
+min_theme <- theme_update(panel.border = element_blank(),
                    panel.grid = element_blank(),
                    axis.ticks = element_blank(),
                    legend.title = element_text(size = 10),
@@ -57,7 +57,6 @@ m_b$true_clust <- true_clust[m_b$Var2]
 ggplot(m_b) +
   geom_tile(aes(y = Var1, x = reorder(Var2, true_clust), fill = value)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080") +
-  min_theme +
   xlab("Tasks [reordered]") +
   ylab("Features") +
   theme(axis.text.x = element_text(angle = -90))
@@ -97,8 +96,7 @@ ggplot(merged_data %>%
   geom_point(aes(x = x, y = y, col = as.factor(cluster)), size = .3) +
   geom_abline(aes(slope = slope, intercept = 0, col = as.factor(cluster))) +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
-  facet_grid(feature ~ task) +
-  min_theme
+  facet_grid(feature ~ task)
 
 ## ---- run-vb ----
 phi <- rep(1 / opts$k, opts$k)
@@ -120,8 +118,7 @@ pi_est$true  <- as.factor(pi_est$true)
 
 ggplot(pi_est) +
   geom_jitter(aes(x = variable, y = value, col = true)) +
-  scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
-  min_theme
+  scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67"))
 
 ## ---- plot-clusters ----
 m <- t(vb_res$var_list$m)
@@ -158,8 +155,7 @@ ggplot(plot_betas_df) +
   geom_abline(slope = 1, intercept = 0, col = "#696969") +
   geom_point(aes(x = slope, y = value, col = variable), alpha = 0.5) +
   facet_wrap(~variable) +
-  coord_fixed() +
-  min_theme
+  coord_fixed()
 
 ## ---- plot-fitted-reg ----
 ggplot(m_merged_data_fit %>%
@@ -168,5 +164,4 @@ ggplot(m_merged_data_fit %>%
   geom_abline(aes(slope = slope, intercept = 0, linetype = slope_type,
                   col = as.factor(cluster))) +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
-  facet_grid(feature ~ task) +
-  min_theme
+  facet_grid(feature ~ task)
