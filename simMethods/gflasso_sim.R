@@ -91,7 +91,7 @@ eps <- .1
 #                       list(delta_conv = 1, lambda = lambda, gamma = gamma,
 #                            iter_max = n_iter, verbose = T, eps = eps))
 #save(gflasso_res, file = "gflasso_res.rda")
-load(file.path(sim_methods_dir, "gflasso_res.rda"))
+load("gflasso_res.rda")
 
 ## ---- vis-objective ----
 obj_data <- data.frame(iteration = seq_along(gflasso_res$obj),

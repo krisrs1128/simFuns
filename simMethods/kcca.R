@@ -3,7 +3,7 @@
 # A nonlinear multitable example, made from two concentric circles.
 ################################################################################
 
-## ---- libraries ----
+## ---- kcca-libraries ----
 # List of packages for session
 .packages = c("kernlab",
               "plyr",
@@ -23,7 +23,6 @@ set.seed(04032016)
 
 cat("\014")  # Clear console
 
-theme_set(theme_bw())
 rm(list=ls()) # Delete all existing variables
 graphics.off() # Close all open plots
 

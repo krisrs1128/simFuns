@@ -31,25 +31,14 @@ cat("\014")  # Clear console
 rm(list=ls()) # Delete all existing variables
 graphics.off() # Close all open plots
 
-theme_set(theme_bw())
-min_theme <- theme_update(panel.border = element_blank(),
-                   panel.grid = element_blank(),
-                   axis.ticks = element_blank(),
-                   legend.title = element_text(size = 10),
-                   axis.text = element_text(size = 8),
-                   axis.title = element_text(size = 10),
-                   strip.background = element_blank(),
-                   strip.text = element_text(size = 10),
-                   legend.key = element_blank())
-
 ## ---- opts ----
 opts <- list()
 opts$n <- 15
 opts$p <- c(100, 10)
 opts$k <- 3
-opts$sigma_b <- 1
+opts$sigma_b <- .5
 opts$sigma_s <- 2
-opts$sigma_y <- 2
+opts$sigma_y <- 1
 
 ## ---- fixed-params ----
 S <- matrix(rnorm(opts$p[2] * opts$k, 0, sd = opts$sigma_s),
@@ -75,9 +64,9 @@ ggplot(m_b) +
   geom_tile(aes(y = Var1, x = reorder(Var2, true_clust), fill = value,
                 col = value)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
-                       limits = c(-8.75, 8.75)) +
+                       limits = c(-6, 6)) + # limits to be consistent with later plots
   scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
-                        limits = c(-8.75, 8.75)) +
+                        limits = c(-6, 6)) +
   labs(fill = "Coef. Value", x = "Tasks [reordered]", y = "Features") +
   guides(col = FALSE) +
   theme(axis.text.x = element_text(angle = -90))
@@ -106,13 +95,13 @@ merged_data <- m_x %>%
   left_join(m_y) %>%
   left_join(m_b)
 
-## ---- vis-reg-lines ----
+## ---- vb-vis-reg-lines ----
 ggplot(merged_data %>%
          filter(task < 11, feature < 6)) +
   geom_point(aes(x = x, y = y, col = as.factor(cluster)), size = .3) +
   geom_abline(aes(slope = slope, intercept = 0, col = as.factor(cluster))) +
   scale_x_continuous(breaks = c(-10, 0, 10)) +
-  scale_y_continuous(breaks = c(-2, 0, 2)) +
+  scale_y_continuous(breaks = c(-10, 0, 10)) +
   labs(col = "Cluster") +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
   facet_grid(feature ~ task)
@@ -123,11 +112,12 @@ sigma <- opts$sigma_y # assume we know sigma for now
 
 S0 <- matrix(rnorm(opts$p[2] * opts$k, 0, sd = opts$sigma_s),
             opts$p[2], opts$k)
-Psi0 <- diag(runif(opts$p[2], .5, 1.5))
+Psi0 <- diag(runif(opts$p[2], .4, 1.2))
 data_list <- list(x_list = x_list, y_list = y_list)
 param_list <- list(S = S0, Psi = Psi0, phi = phi, sigma = sigma)
-vb_res <- vb_multinom(data_list, param_list, 1)
-str(vb_res)
+#vb_res <- vb_multinom(data_list, param_list, 10)
+#save(vb_res, file = "vb_res.rda")
+vb_res <- get(load("vb_res.rda"))
 
 ## ---- plot-pi ----
 pi_guess <- t(vb_res$var_list$pi)
@@ -193,8 +183,8 @@ ggplot(plot_betas_df) +
   geom_abline(slope = 1, intercept = 0, col = "#db4551", size = .5) +
   geom_errorbar(aes(x = slope, ymin = slope_est - 1.9 * sqrt(variance),
                     ymax = slope_est + 1.9 * sqrt(variance)),
-                size = .05, col = "#292929") +
-  geom_point(aes(x = slope, y = slope_est), col =  "#292929", size = .2) +
+                size = .4, alpha = 0.1, col = "#292929") +
+  geom_point(aes(x = slope, y = slope_est), col =  "#292929", size = .5, alpha = 0.3) +
   coord_fixed() +
   labs(color = "Method", y = "Estimated Slope", x = "True Slope") +
   facet_grid(. ~ slope_type, labeller = as_labeller(methods_label))
@@ -214,7 +204,7 @@ ggplot(m_merged_data_fit %>%
                   col = as.factor(cluster), linetype = slope_type), alpha = 0.4) +
   geom_abline(aes(slope = slope, intercept = 0, linetype = "True",
                   col = as.factor(cluster))) +
-  scale_y_continuous(breaks = c(-15, 0, 15)) +
+  scale_y_continuous(breaks = c(-10, 0, 10)) +
   scale_color_manual(values = c("#5FABC8", "#ffdead", "#c16a67")) +
   scale_linetype(labels = c("True", "LM", "BM")) +
   labs(linetype = "Slope", col = "Task Cluster") +
@@ -229,9 +219,9 @@ ggplot(plot_betas_df) +
                 fill = slope_est, col = slope_est)) +
   facet_grid(slope_type ~ ., labeller = as_labeller(methods_label)) +
   scale_fill_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
-                       limits = c(-8.75, 8.75)) +
+                       limits = c(-6, 6)) +
   scale_color_gradient2(midpoint = 0, high = "#90ee90", low = "#000080",
-                        limits = c(-8.75, 8.75)) +
+                        limits = c(-6, 6)) +
   labs(fill = "Coef. Value", x = "Tasks [reordered]", y = "Features") +
   guides(col = FALSE) +
   theme(axis.text.x = element_text(angle = -90))
