@@ -77,6 +77,8 @@ ggplot(x_res) +
   scale_color_gradient(low = "#36191E", high = "#E3809C")
 
 ggplot(data.frame(kcca_scores, R = R[, 1])) +
-  geom_point(aes(x = X1.1, y = X2.1, col = R))
+  geom_point(aes(x = X1.1, y = X2.1, col = R)) +
+  scale_color_gradient(high = "#36191E", low = "#E3809C")
 ggplot(data.frame(kcca_scores, R = R[, 1])) +
-  geom_point(aes(x = X1.2, y = X2.2, col = R))
+  geom_point(aes(x = X1.2, y = X2.2, col = R)) +
+  scale_color_gradient(low = "#36191E", high = "#E3809C")

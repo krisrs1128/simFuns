@@ -9,26 +9,19 @@
 
 ## ---- cr-setup ----
 # List of packages for session
-.packages = c("expm",
-              "plyr",
-              "reshape2",
-              "bayesMult",
-              "ggplot2",
-              "dplyr")
+.packages <- c("expm", "plyr", "reshape2", "bayesMult", "ggplot2", "dplyr")
 
 # Install CRAN packages (if not already installed)
 .inst <- .packages %in% installed.packages()
 if(any(!.inst)) {
-  install.packages(.packages[!.inst], repos='http://cran.rstudio.com/')
+  install.packages(.packages[!.inst], repos = "http://cran.rstudio.com/")
 }
 
 # Load packages into session 
-lapply(.packages, require, character.only=TRUE)
+sapply(.packages, require, character.only = TRUE)
 set.seed(5052016)
-
 cat("\014")  # Clear console
-
-rm(list=ls()) # Delete all existing variables
+rm(list = ls()) # Delete all existing variables
 graphics.off() # Close all open plots
 
 ## ---- opts ----

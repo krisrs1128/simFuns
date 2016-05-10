@@ -5,27 +5,20 @@
 
 ## ---- sparse-sim-packages ----
 # List of packages for session
-.packages = c("reshape2",
-              "ggplot2",
-              "plyr",
-              "dplyr", 
-              "simData",
-              "PMA", 
-              "FactoMineR")
+.packages <- c("reshape2", "ggplot2", "plyr", "dplyr", "simData",
+              "PMA", "FactoMineR")
 
 # Install CRAN packages (if not already installed)
 .inst <- .packages %in% installed.packages()
 if(any(!.inst)) {
-  install.packages(.packages[!.inst], repos='http://cran.rstudio.com/')
+  install.packages(.packages[!.inst], repos = "http://cran.rstudio.com/")
 }
 
 # Load packages into session 
-lapply(.packages, require, character.only=TRUE)
+sapply(.packages, require, character.only = TRUE)
 set.seed(04032016)
-
 cat("\014")  # Clear console
-
-rm(list=ls()) # Delete all existing variables
+rm(list = ls()) # Delete all existing variables
 graphics.off() # Close all open plots
 
 ## ---- sparse-sim-opts ----
