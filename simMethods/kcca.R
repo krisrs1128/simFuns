@@ -52,25 +52,27 @@ cancor_scores <- list(X1 = x_list[[1]] %*% cancor_res$xcoef,
                       X2 = x_list[[2]] %*% cancor_res$ycoef)
 
 ## ---- cca-fukumizu-plots ----
-ggplot(data.frame(cancor_scores, z)) +
-  geom_point(aes(x = X1.1, y = X1.2, col = z)) +
-  coord_fixed(ratio = cancor_res$cor[2] / cancor_res$cor[1])
-ggplot(data.frame(cancor_scores, z)) +
-  geom_point(aes(x = X2.1, y = X2.2, col = z)) +
+ggplot(data.frame(cancor_scores, cluster = X$cluster)) +
+  geom_point(aes(x = X1.1, y = X1.2, col = cluster), size = .75) +
   coord_fixed(ratio = cancor_res$cor[2] / cancor_res$cor[1])
 
- # correlation between scores
-ggplot(data.frame(cancor_scores, z)) +
-  geom_point(aes(x = X1.1, y = X2.1, col = z)) +
-  coord_fixed()
+x_res <- data.frame(X, score = c(cancor_scores$X1[, 1], cancor_scores$X2[, 1]))
+
+ggplot(x_res) +
+  geom_point(aes(x = x, y = y, col = score), size = .75) +
+  scale_color_gradient(low = "#36191E", high = "#E3809C") +
+  coord_fixed(ratio = cancor_res$cor[2] / cancor_res$cor[1])
 
 ## ---- kcca-fukumizu ----
 kcca_res <- kcca(x_list[[1]], x_list[[2]], kpar = list(sigma = .01))
 kcca_scores <- list(X1 = kcca_res@xcoef, X2 = kcca_res@ycoef)
-plot(x_list[[1]][, 1], kcca_scores$X1[, 1])
 
 ## ---- kcca-fukumizu-plots ----
 x_res <- data.frame(X, score = c(kcca_scores$X1[, 1], kcca_scores$X2[, 1]))
+
+ggplot(data.frame(data.frame(kcca_scores), R = R[, 1])) +
+  geom_point(aes(x = X1.1, y = X1.2, col = R), size = 0.75) +
+  scale_color_gradient(low = "#36191E", high = "#E3809C")
 
 ggplot(x_res) +
   geom_point(aes(x = x, y = y, col = score, shape = cluster)) +
@@ -78,7 +80,6 @@ ggplot(x_res) +
 
 ggplot(data.frame(kcca_scores, R = R[, 1])) +
   geom_point(aes(x = X1.1, y = X2.1, col = R)) +
-  scale_color_gradient(high = "#36191E", low = "#E3809C")
-ggplot(data.frame(kcca_scores, R = R[, 1])) +
-  geom_point(aes(x = X1.2, y = X2.2, col = R)) +
-  scale_color_gradient(low = "#36191E", high = "#E3809C")
+  scale_color_gradient(high = "#36191E", low = "#E3809C") +
+  geom_abline(slope = 1) +
+  coord_fixed()
