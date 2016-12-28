@@ -1,4 +1,6 @@
 
+#' @title generate pdfs
+#' @export
 pdf_factory <- function(A) {
   function(x) {
     A %*% x + rnorm(length(x))
@@ -20,6 +22,8 @@ dynamical_system <- function(pdf, x_init = 0, len = 100) {
   x
 }
 
+#' @title A single sample from a state space model
+#' @export
 ssm_sample <- function(pdf_u, u_init = 0, B = NULL, R = NULL, len = 100) {
   u <- dynamical_system(pdf_u, u_init, len)
   K <- nrow(u)
@@ -42,6 +46,7 @@ ssm_sample <- function(pdf_u, u_init = 0, B = NULL, R = NULL, len = 100) {
 #' pdf_u <- pdf_factory(matnorm(2, 2, 1))
 #' B <- matnorm(4, 2, .1)
 #' ssm_data(10, pdf_u, B, u_init = rep(0, 2))
+#' @export
 ssm_data <- function(n, pdf, u_init = 0, B = NULL, R = NULL, len = 100) {
   replicate(n, ssm_sample(pdf, u_init, B, R, len))
 }

@@ -29,11 +29,11 @@ sqrt_mat <- function(X) {
 
 #' @title Generate GP data
 #'
-#' @example
+#' @examples
 #' times <- seq(0, 1, length.out = 100)
 #' plot(times, gp_data(times, 0.01, 0.1))
 #' @export
-gp_data <- function(times, bandwidth = 1, noise = 1) {
+gp_data <- function(times, bandwidth = 1, noise = 0) {
   K <- kernel_matrix(times, bandwidth)
   sqrt_mat(K) %*% matnorm(length(times), 1, 1) +
     matnorm(length(times), 1, noise)

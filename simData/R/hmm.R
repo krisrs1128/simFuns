@@ -30,21 +30,25 @@ markov_chain <- function(P, pi_init = NULL, length = 100) {
 
 #' @title Generate many markov chains
 #'
-#' @example
+#' @examples
 #' # pretty diagonally dominant
 #' P <- matrix(runif(4 * 4), 4, 4) + 10 * diag(4)
 #' P <- diag(1 / rowSums(P)) %*% P
 #' matplot(t(markov_chains(P, n = 3)))
+#' @export
 markov_chains <- function(P, pi_init = NULL, n = 1, length = 100) {
   t(replicate(n,  markov_chain(P, pi_init, length)))
 }
 
 #' @title Generate data from an HMM
-#' @example
+#' @examples
+#' P <- matrix(runif(4 * 4), 4, 4) + 10 * diag(4)
+#' P <- diag(1 / rowSums(P)) %*% P
 #' obs_densities <- lapply(1:4, function(sigma) { function(n) { rnorm(n, 0, sigma) }})
 #' names(obs_densities) <- 1:4
 #' x <- hmm_data(P, obs_densities, 4)
 #' matplot(t(x))
+#' @export
 hmm_data <- function(P, obs_densities, n = 1, pi_init = NULL, length = 100) {
   z <- markov_chains(P, pi_init, n, length)
   x <- matrix(0, nrow(z), ncol(z))
